@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Nova Dev</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            background-image: url('./images/admin-page-bg.jpg');
+            background-size: cover; /* or contain */
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: transparent;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+        .logout:hover {
+            color: #ff5252;
+        }
+        .logout img {
+            width: 20px;
+            height: 20px;
+        }
+        .panel {
+            max-width: 800px;
+            margin: 130px auto 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .panel h2 {
+            margin-bottom: 20px;
+        }
+        .btn {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .form-container {
+            display: none;
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .form-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+        #statusMessage {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1100;
+            font-weight: bold;
+        }
+        #statusMessage.error {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌟 Nova Dev Admin Panel</h1>
+        <p>Yöneticilere özel içerikler burada gösterilecek</p>
+        <button class="logout" onclick="window.location.href='index.html'">
+            <img src="images/logout.png" alt="logout"> Çıkış Yap
+        </button>
+    </header>
+
+    <div id="statusMessage"></div>
+
+    <div>
+        <h2>Hoşgeldiniz, Yönetici!</h2>
+    </div>
+
+    <div class="panel">
+        <h2>Yeni Donem Ders!</h2>
+        <button class="btn" onclick="toggleForm()">+ Ders Ekle</button>
+
+        <div class="form-container" id="courseForm">
+            <form method="POST" action="add-course.php">
+                <label for="courseCode">Ders Kodu</label>
+                <input type="text" id="courseCode" name="courseCode" required>
+
+                <label for="courseName">Ders Adı</label>
+                <input type="text" id="courseName" name="courseName" required>
+
+                <label for="courseTeacher">Ders Öğretmeni</label>
+                <select id="courseTeacher" name="courseTeacher" required>
+                    <option value="">Seçiniz</option>
+                    <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+                    <option value="Elif Demir">Elif Demir</option>
+                    <option value="Mehmet Kaya">Mehmet Kaya</option>
+                    <option value="Zeynep Öztürk">Zeynep Öztürk</option>
+                </select>
+
+                <label for="courseDept">Ders Bölümü</label>
+                <select id="courseDept" name="courseDept" required>
+                    <option value="">Seçiniz</option>
+                    <option value="Bilgisayar Mühendisliği">Bilgisayar Mühendisliği</option>
+                    <option value="Elektrik-Elektronik">Elektrik-Elektronik</option>
+                    <option value="Makine Mühendisliği">Makine Mühendisliği</option>
+                    <option value="Endüstri Mühendisliği">Endüstri Mühendisliği</option>
+                </select>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('courseForm');
+            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Display success/error message from URL
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const statusMessage = document.getElementById("statusMessage");
+            if (params.has("success")) {
+                if (params.get("success") === "1") {
+                    statusMessage.textContent = "Ders başarıyla kaydedildi ✅";
+                    statusMessage.classList.remove("error");
+                } else {
+                    statusMessage.textContent = "Hata: Ders kaydedilemedi ❌";
+                    statusMessage.classList.add("error");
+                }
+                statusMessage.style.display = "block";
+                setTimeout(() => {
+                    statusMessage.style.display = "none";
+                    const cleanUrl = window.location.href.split('?')[0];
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

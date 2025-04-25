@@ -21,7 +21,7 @@ $pass = $_POST['password'];
 $sql = "INSERT INTO users (name, email, password) VALUES ('$name', '$email', '$pass')";
 
 if ($conn->query($sql) === TRUE) {
-    echo "Signup successful!";
+    echo "Kayıt başarılı!";
 } else {
     echo "Error: " . $sql . "<br>" . $conn->error;
 }
