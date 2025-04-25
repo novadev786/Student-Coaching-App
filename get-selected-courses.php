@@ -1,17 +1,10 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "student_db";
-
-// Connect
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli("localhost", "root", "", "student_db");
 if ($conn->connect_error) {
     die("Bağlantı hatası: " . $conn->connect_error);
 }
 
-// Fetch courses
-$sql = "SELECT course_code, course_name, course_teacher, course_department FROM courses";
+$sql = "SELECT * FROM selected_courses";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -21,22 +14,20 @@ if ($result->num_rows > 0) {
                 <th>Ders Adı</th>
                 <th>Öğretmen</th>
                 <th>Bölüm</th>
-                <th>Seç</th>
+                <th>Sil</th>
             </tr>";
     while ($row = $result->fetch_assoc()) {
-        $data = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
         echo "<tr>
                 <td>{$row['course_code']}</td>
                 <td>{$row['course_name']}</td>
                 <td>{$row['course_teacher']}</td>
                 <td>{$row['course_department']}</td>
-                <td><button onclick='selectCourse({$data})'>Seç</button></td>
+                <td><button onclick='deleteCourse({$row['id']})'>Sil</button></td>
               </tr>";
     }
     echo "</table>";
 } else {
-    echo "Ders bulunamadı.";
+    echo "Seçtiğiniz ders bulunamadı.";
 }
-
 $conn->close();
 ?>

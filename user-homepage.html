@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Kullanıcı Anasayfası - Nova Dev</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="./images/study.png">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,7 +12,7 @@
             padding: 0;
             background: #f2f2f2;
             background-image: url('./images/homepage-bg.jpg');
-            background-size: cover; /* or contain */
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
@@ -114,6 +115,22 @@
             float: right;
             cursor: pointer;
         }
+        #statusMessage {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1100;
+            font-weight: bold;
+        }
+        #statusMessage.error {
+            background-color: #f44336;
+        }
     </style>
 </head>
 <body>
@@ -129,7 +146,7 @@
         <div class="cards">
             <div class="card" onclick="openPopup()">🆕 Yeni Dönem Ders Seçimi</div>
             <div class="card">📝 Ders Notlarınız</div>
-            <div class="card">📘 Seçtiğiniz Dersler</div>
+            <div class="card" onclick="openSelectedCoursesPopup()">📘 Seçtiğiniz Dersler</div>
             <div class="card">📅 Duyurular</div>
             <div class="card">💬 Hocaya Mesaj Atın</div>
         </div>
@@ -143,6 +160,16 @@
         </div>
     </div>
 
+    <div class="popup" id="selectedPopup">
+        <div class="popup-content">
+            <button class="close-btn" onclick="closeSelectedCoursesPopup()">X</button>
+            <h3>Seçtiğiniz Dersler</h3>
+            <div id="selectedCoursesTable"></div>
+        </div>
+    </div>
+
+    <div id="statusMessage"></div>
+
     <script>
         function openPopup() {
             fetch('get-courses.php')
@@ -155,6 +182,52 @@
 
         function closePopup() {
             document.getElementById('popup').style.display = 'none';
+        }
+
+        function openSelectedCoursesPopup() {
+            fetch('get-selected-courses.php')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('selectedCoursesTable').innerHTML = data;
+                    document.getElementById('selectedPopup').style.display = 'flex';
+                });
+        }
+
+        function closeSelectedCoursesPopup() {
+            document.getElementById('selectedPopup').style.display = 'none';
+        }
+
+        function selectCourse(course) {
+            const formData = new FormData();
+            formData.append('courseCode', course.course_code);
+            formData.append('courseName', course.course_name);
+            formData.append('courseTeacher', course.course_teacher);
+            formData.append('courseDept', course.course_department);
+
+            fetch('select-course.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.text())
+            .then(message => {
+                const status = document.getElementById("statusMessage");
+                status.textContent = message;
+                status.className = message.includes("zaten") ? 'error' : '';
+                status.style.display = "block";
+
+                setTimeout(() => {
+                    status.style.display = "none";
+                }, 3000);
+            })
+            .catch(error => {
+                const status = document.getElementById("statusMessage");
+                status.textContent = "Bir hata oluştu: " + error;
+                status.className = 'error';
+                status.style.display = "block";
+                setTimeout(() => {
+                    status.style.display = "none";
+                }, 3000);
+            });
         }
     </script>
 </body>
