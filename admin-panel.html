@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
             background-image: url('./images/admin-page-bg.jpg');
-            background-size: cover; /* or contain */
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             margin: 0;
@@ -48,14 +48,27 @@
             width: 20px;
             height: 20px;
         }
-        .panel {
-            max-width: 800px;
-            margin: 130px auto 30px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        }
+        .panel-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    max-width: 1100px;  /* Increased from 1000px */
+    margin: 130px auto 30px auto;
+    padding: 0 20px;
+    flex-wrap: wrap;
+}
+
+.panel {
+    flex: 0 1 48%;        /* Increased from 45% */
+    min-width: 320px;     /* Slightly wider */
+    max-width: 500px;     /* Increased from 400px */
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+
         .panel h2 {
             margin-bottom: 20px;
         }
@@ -106,23 +119,51 @@
         #statusMessage.error {
             background-color: #f44336;
         }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .popup-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .close-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            float: right;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🌟 Nova Dev Admin Panel</h1>
-        <p>Yöneticilere özel içerikler burada gösterilecek</p>
-        <button class="logout" onclick="window.location.href='index.html'">
-            <img src="images/logout.png" alt="logout"> Çıkış Yap
-        </button>
-    </header>
+<header>
+    <h1>🌟 Nova Dev Admin Panel</h1>
+    <p>Yöneticilere özel içerikler burada gösterilecek</p>
+    <button class="logout" onclick="window.location.href='index.html'">
+        <img src="images/logout.png" alt="logout"> Çıkış Yap
+    </button>
+</header>
 
-    <div id="statusMessage"></div>
+<div id="statusMessage"></div>
+<div><h2>Hoşgeldiniz, Yönetici!</h2></div>
 
-    <div>
-        <h2>Hoşgeldiniz, Yönetici!</h2>
-    </div>
-
+<div class="panel-wrapper">
     <div class="panel">
         <h2>Yeni Donem Ders!</h2>
         <button class="btn" onclick="toggleForm()">+ Ders Ekle</button>
@@ -160,32 +201,89 @@
         </div>
     </div>
 
-    <script>
-        function toggleForm() {
-            const form = document.getElementById('courseForm');
-            form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    <div class="panel">
+        <h2>📖 Açılan Dersler</h2>
+        <button class="btn" onclick="openAllCoursesPopup()">Tüm Dersleri Göster</button>
+    </div>
+</div>
+
+<div class="popup" id="allCoursesPopup">
+    <div class="popup-content">
+        <button class="close-btn" onclick="closeAllCoursesPopup()">X</button>
+        <h3>Bu Dönem Açılan Dersler</h3>
+        <div id="coursesTableContainer">Yükleniyor...</div>
+    </div>
+</div>
+
+<script>
+    function toggleForm() {
+        const form = document.getElementById('courseForm');
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function openAllCoursesPopup() {
+        fetch('get-all-courses-admin-page.php')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('coursesTableContainer').innerHTML = data;
+                document.getElementById('allCoursesPopup').style.display = 'flex';
+            })
+            .catch(() => {
+                document.getElementById('coursesTableContainer').innerHTML = "Dersler yüklenemedi.";
+            });
+    }
+
+    function closeAllCoursesPopup() {
+        document.getElementById('allCoursesPopup').style.display = 'none';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const statusMessage = document.getElementById("statusMessage");
+        if (params.has("success")) {
+            if (params.get("success") === "1") {
+                statusMessage.textContent = "Ders başarıyla kaydedildi ✅";
+                statusMessage.classList.remove("error");
+            } else {
+                statusMessage.textContent = "Hata: Ders kaydedilemedi ❌";
+                statusMessage.classList.add("error");
+            }
+            statusMessage.style.display = "block";
+            setTimeout(() => {
+                statusMessage.style.display = "none";
+                const cleanUrl = window.location.href.split('?')[0];
+                window.history.replaceState({}, document.title, cleanUrl);
+            }, 3000);
+        }
+    });
+
+
+
+        function deleteCourse(courseCode) {
+            if (confirm("Bu dersi silmek istediğinize emin misiniz?")) {
+                const formData = new URLSearchParams();
+                formData.append("delete_code", courseCode);
+
+                fetch('get-all-courses-admin-page.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                })
+                .then(res => res.text())
+                .then(response => {
+                    if (response.includes("success")) {
+                        const row = document.getElementById('row_' + courseCode);
+                        if (row) row.remove();
+                    } else {
+                        alert("Veritabanından silinemedi.");
+                    }
+                })
+                .catch(err => alert('Silme işlemi başarısız oldu.'));
+            }
         }
 
-        // Display success/error message from URL
-        window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const statusMessage = document.getElementById("statusMessage");
-            if (params.has("success")) {
-                if (params.get("success") === "1") {
-                    statusMessage.textContent = "Ders başarıyla kaydedildi ✅";
-                    statusMessage.classList.remove("error");
-                } else {
-                    statusMessage.textContent = "Hata: Ders kaydedilemedi ❌";
-                    statusMessage.classList.add("error");
-                }
-                statusMessage.style.display = "block";
-                setTimeout(() => {
-                    statusMessage.style.display = "none";
-                    const cleanUrl = window.location.href.split('?')[0];
-                    window.history.replaceState({}, document.title, cleanUrl);
-                }, 3000);
-            }
-        });
-    </script>
+</script>
 </body>
 </html>

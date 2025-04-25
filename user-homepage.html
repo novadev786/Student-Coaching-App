@@ -229,6 +229,25 @@
                 }, 3000);
             });
         }
+
+        function deleteCourse(id) {
+            fetch('delete-course.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + id
+            })
+            .then(res => res.text())
+            .then(message => {
+                const status = document.getElementById("statusMessage");
+                status.textContent = message;
+                status.className = '';
+                status.style.display = "block";
+                setTimeout(() => {
+                    status.style.display = "none";
+                    openSelectedCoursesPopup(); // Refresh table
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>
