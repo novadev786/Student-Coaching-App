@@ -82,9 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(res => res.text())
             .then(data => {
-                if (data.includes("Login successful")) {
+                if (data.includes("Giriş başarılı!")) {
                     alert("Giriş başarılı!"); // Login successful message
-                    window.location.href = "home.html"; // Redirect to home
+                    window.location.href = "user-homepage.html"; // Redirect to home
                 } else {
                     alert(data); // Invalid credentials
                 }
