@@ -37,6 +37,13 @@ header {
     letter-spacing: 1.5px;
 }
 
+.body {
+    background-image: url('./images/bg.jpg');
+    background-size: cover; /* or contain */
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .container {
     height: 600px;
     width: 500px;
