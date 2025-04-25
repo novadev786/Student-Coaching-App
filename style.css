@@ -47,7 +47,7 @@ header {
 .container {
     height: 600px;
     width: 500px;
-    background-color: white;
+    background-color: rgb(14, 15, 9);
     box-shadow: 8px 8px 20px rgb(128, 128, 128);
     position: relative;
     overflow: hidden;
@@ -68,6 +68,8 @@ header {
 .signup {
     font-size: 22px;
     border: none;
+    color: rgb(255, 255, 255);
+    font-weight: bolder;
     outline: none;
     background-color: transparent;
     position: relative;
@@ -79,7 +81,7 @@ header {
     width: 150px;
     border-radius: 50px;
     background-image: linear-gradient(to right,
-            rgb(255, 243, 110),
+            rgb(249, 241, 159),
             rgb(255, 255, 91));
     position: absolute;
     top: 20px;
