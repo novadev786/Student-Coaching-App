@@ -1,0 +1,22 @@
+<h2>📌 Öğrenciye Günlük Görev Ekle</h2>
+<form action="create_daily_task.php" method="POST">
+  <label>Öğrenci ID:</label>
+  <input type="number" name="student_id" required><br><br>
+
+  <label>Görev Başlığı:</label>
+  <input type="text" name="task_title" required><br><br>
+
+  <label>Açıklama:</label><br>
+  <textarea name="task_description" rows="4" cols="50" required></textarea><br><br>
+
+  <label>Puan (opsiyonel):</label>
+  <input type="number" name="points" min="0" value="0"><br><br>
+
+  <label>Başlangıç Tarihi:</label>
+  <input type="date" name="start_date" required><br><br>
+
+  <label>Bitiş Tarihi:</label>
+  <input type="date" name="due_date" required><br><br>
+
+  <button type="submit">Görev Ata</button>
+</form>

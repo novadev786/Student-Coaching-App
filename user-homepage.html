@@ -6,6 +6,42 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/x-icon" href="./images/study.png">
     <style>
+
+
+#studentTaskPopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+#studentTaskPopup .popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+#studentTaskPopup .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -149,7 +185,24 @@
             <div class="card" onclick="openSelectedCoursesPopup()">📘 Seçtiğiniz Dersler</div>
             <div class="card">📅 Duyurular</div>
             <div class="card">💬 Hocaya Mesaj Atın</div>
+           
         </div>
+
+        <div class="content">
+            <h2>🎯 Size Atanan Görevler</h2>
+            <div class="card" onclick="openTaskPopup()">📌 Görevleri Göster</div>
+        </div>
+        
+        <div class="popup" id="studentTaskPopup">
+            <div class="popup-content">
+                <button class="close-btn" onclick="closeTaskPopup()">X</button>
+                <h3>📋 Size Atanan Görevler</h3>
+                <ul id="studentTaskList" style="list-style: none; padding: 0; margin-top: 20px;"></ul>
+            </div>
+        </div>
+
+        
+
     </div>
 
     <div class="popup" id="popup">
@@ -248,6 +301,75 @@
                 }, 2000);
             });
         }
+
+
+
+        const studentId = 2355022; // Update this with the actual student_id from the database
+
+function openTaskPopup() {
+    loadStudentTasks();
+    document.getElementById("studentTaskPopup").style.display = "flex";
+}
+
+function closeTaskPopup() {
+    document.getElementById("studentTaskPopup").style.display = "none";
+}
+
+function loadStudentTasks() {
+    fetch(`get_student_tasks.php?student_id=${studentId}`)
+        .then(res => res.json())
+        .then(tasks => {
+            const list = document.getElementById("studentTaskList");
+            list.innerHTML = "";
+            if (!tasks.length) {
+                list.innerHTML = "<li>Henüz atanmış bir görev yok.</li>";
+                return;
+            }
+            tasks.forEach(task => {
+                const li = document.createElement("li");
+                const isDone = task.is_done == 1;
+                li.innerHTML = `
+                    <div class="task-box" data-task-id="${task.id}" style="
+                        border: 1px solid #ccc;
+                        margin-bottom: 10px;
+                        padding: 10px;
+                        border-radius: 6px;
+                        background-color: #fdfdfd;
+                    ">
+                        <strong class="task-title" style="text-decoration: ${isDone ? 'line-through' : 'none'}">${task.task_title}</strong><br>
+                        <small class="task-desc" style="text-decoration: ${isDone ? 'line-through' : 'none'}">${task.task_description}</small><br>
+                        <span class="task-dates" style="text-decoration: ${isDone ? 'line-through' : 'none'}"><strong>Başlangıç:</strong> ${task.start_date} | <strong>Bitiş:</strong> ${task.due_date}</span><br>
+                        <span class="task-puan" style="text-decoration: ${isDone ? 'line-through' : 'none'}"><strong>Puan:</strong> ${task.points}</span><br>
+                        <button onclick="toggleDone(${task.id}, this)" style="margin-top: 5px;">
+                            ${isDone ? '↩️ Geri Al' : '✔️ Tamamladım'}
+                        </button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        })
+        .catch(err => {
+            document.getElementById("studentTaskList").innerHTML = `<li>Görevler yüklenemedi.</li>`;
+            console.error("Görevleri alırken hata oluştu:", err);
+        });
+}
+
+function toggleDone(taskId, btn) {
+    const taskBox = btn.closest(".task-box");
+    const isCurrentlyDone = btn.textContent.includes('Geri Al');
+
+    fetch('update_student_task.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: taskId, is_done: isCurrentlyDone ? 0 : 1 })
+    }).then(() => {
+        // Toggle the text decorations and button text
+        taskBox.querySelectorAll('strong, small, span').forEach(el => {
+            el.style.textDecoration = isCurrentlyDone ? 'none' : 'line-through';
+        });
+        btn.textContent = isCurrentlyDone ? '✔️ Tamamladım' : '↩️ Geri Al';
+    });
+}
     </script>
 </body>
 </html>
