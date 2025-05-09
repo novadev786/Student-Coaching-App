@@ -185,6 +185,8 @@
             <div class="card" onclick="openSelectedCoursesPopup()">📘 Seçtiğiniz Dersler</div>
             <div class="card">📅 Duyurular</div>
             <div class="card">💬 Hocaya Mesaj Atın</div>
+            <div class="card" onclick="openDenemeAnalizi()">📊 Deneme Analizi</div>
+
            
         </div>
 
@@ -371,5 +373,83 @@ function toggleDone(taskId, btn) {
     });
 }
     </script>
+
+    <!-- Deneme Analizi Popup -->
+<div id="denemeAnaliziPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:500px; position:relative;">
+        <button class="close-btn" onclick="closeDenemeAnalizi()">X</button>
+
+      <h2>Deneme Analizi</h2>
+      <form id="denemeForm">
+        <div>Ders | Doğru | Yanlış</div>
+        <div><label>Türkçe: <input name="turkce_d" type="number" required> <input name="turkce_y" type="number" required></label></div>
+        <div><label>Matematik: <input name="mat_d" type="number" required> <input name="mat_y" type="number" required></label></div>
+        <div><label>Fen: <input name="fen_d" type="number" required> <input name="fen_y" type="number" required></label></div>
+        <div><label>Sosyal: <input name="sos_d" type="number" required> <input name="sos_y" type="number" required></label></div>
+        <div><label>İngilizce: <input name="ing_d" type="number" required> <input name="ing_y" type="number" required></label></div>
+        <br>
+        <button type="submit">Netleri Hesapla</button>
+      </form>
+      <canvas id="netChart" style="margin-top:20px;"></canvas>
+    </div>
+  </div>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+  function openDenemeAnalizi() {
+      document.getElementById('denemeAnaliziPopup').style.display = 'flex';
+  }
+  function closeDenemeAnalizi() {
+      document.getElementById('denemeAnaliziPopup').style.display = 'none';
+  }
+  
+  document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("denemeForm");
+      if (form) {
+          form.addEventListener("submit", function (e) {
+              e.preventDefault();
+              const dersler = ["Türkçe", "Matematik", "Fen", "Sosyal", "İngilizce"];
+              const netler = [
+                  hesapla(form.turkce_d.value, form.turkce_y.value),
+                  hesapla(form.mat_d.value, form.mat_y.value),
+                  hesapla(form.fen_d.value, form.fen_y.value),
+                  hesapla(form.sos_d.value, form.sos_y.value),
+                  hesapla(form.ing_d.value, form.ing_y.value)
+              ];
+  
+              const ctx = document.getElementById("netChart").getContext("2d");
+              if (window.netChartInstance) window.netChartInstance.destroy();
+              window.netChartInstance = new Chart(ctx, {
+                  type: "pie",
+                  data: {
+                      labels: dersler,
+                      datasets: [{
+                          data: netler,
+                          backgroundColor: [
+                              "#f44336", "#2196F3", "#4CAF50", "#FF9800", "#9C27B0"
+                          ]
+                      }]
+                  },
+                  options: {
+                      responsive: true,
+                      plugins: {
+                          legend: { position: 'bottom' },
+                          title: { display: true, text: 'Ders Bazlı Net Dağılımı' }
+                      }
+                  }
+              });
+          });
+      }
+  
+      function hesapla(dogru, yanlis) {
+          let d = parseInt(dogru) || 0;
+          let y = parseInt(yanlis) || 0;
+          return Math.max(0, (d - y * 0.25).toFixed(2));
+      }
+  });
+  </script>
+  
 </body>
 </html>
