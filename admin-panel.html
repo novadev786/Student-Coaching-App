@@ -212,6 +212,11 @@
 <div><h2>Hoşgeldiniz, Yönetici!</h2></div>
 
 <div class="panel-wrapper">
+     <div class="panel">
+        <h2>🎯 Hedef Ata</h2>
+        <p>Bir hedefi seçili öğrenciye atayın.</p>
+        <button class="btn" onclick="openAssignGoalPopup()">+ Hedef Ata</button>
+    </div>
     <div class="panel">
         <h2>✅ Görev Ekle</h2>
         <a href="add-task.php">
@@ -330,7 +335,30 @@
 
 
 </div>
+<div class="popup" id="assignGoalPopup">
+    <div class="popup-content">
+        <button class="close-btn" onclick="closeAssignGoalPopup()">X</button>
+        <h3>Hedefi Öğrenciye Ata</h3>
+        <form id="assignGoalForm" method="POST" action="assign_goal_to_student.php">
+            <label for="assign_goal_id">Hedef Seç:</label>
+            <select id="assign_goal_id" name="goal_id" required>
+                <option value="">-- Hedef Yükleniyor... --</option>
+                <!-- Hedefler buraya JS ile yüklenecek -->
+            </select>
 
+            <label for="assign_student_id">Öğrenci Seç:</label>
+            <select id="assign_student_id" name="student_id" required>
+                <option value="">-- Öğrenci Yükleniyor... --</option>
+                <!-- Öğrenciler buraya JS ile yüklenecek -->
+            </select>
+
+            <div class="form-actions">
+                <button type="submit" class="btn">Atamayı Kaydet</button>
+            </div>
+             <div id="assignGoalMessage" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+        </form>
+    </div>
+</div>
 
 <div class="popup" id="allCoursesPopup">
     <div class="popup-content">
@@ -459,6 +487,104 @@ function openAllTasksPopup() {
 function closeAllTasksPopup() {
     document.getElementById("teacherTaskPopup").style.display = "none";
 }
+function openAssignGoalPopup() {
+        loadGoalsForDropdown(); // Hedefleri yükle
+        loadStudentsForDropdown(); // Öğrencileri yükle
+        document.getElementById('assignGoalMessage').textContent = ''; // Mesajı temizle
+        document.getElementById('assignGoalPopup').style.display = 'flex';
+    }
+
+    function closeAssignGoalPopup() {
+        document.getElementById('assignGoalPopup').style.display = 'none';
+    }
+
+    // Hedefleri dropdown'a yüklemek için fonksiyon
+    function loadGoalsForDropdown() {
+        const goalSelect = document.getElementById('assign_goal_id');
+        goalSelect.innerHTML = '<option value="">-- Hedef Yükleniyor... --</option>'; // Yükleniyor mesajı
+
+        fetch('get_goals_for_dropdown.php') // Bu PHP dosyasını oluşturacağız
+            .then(response => response.json())
+            .then(data => {
+                goalSelect.innerHTML = '<option value="">-- Hedef Seçin --</option>'; // Varsayılan seçenek
+                if (data.error) {
+                    console.error('Hedefler yüklenemedi:', data.error);
+                     goalSelect.innerHTML = '<option value="">Hedefler yüklenemedi!</option>';
+                } else {
+                    data.forEach(goal => {
+                        const option = document.createElement('option');
+                        option.value = goal.id;
+                        option.textContent = goal.title;
+                        goalSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Hedefleri fetch ederken hata:', error);
+                goalSelect.innerHTML = '<option value="">Hata oluştu!</option>';
+            });
+    }
+
+    // Öğrencileri dropdown'a yüklemek için fonksiyon
+    function loadStudentsForDropdown() {
+        const studentSelect = document.getElementById('assign_student_id');
+        studentSelect.innerHTML = '<option value="">-- Öğrenci Yükleniyor... --</option>'; // Yükleniyor mesajı
+
+        fetch('get_students_for_dropdown.php') // Bu PHP dosyasını oluşturacağız
+            .then(response => response.json())
+            .then(data => {
+                studentSelect.innerHTML = '<option value="">-- Öğrenci Seçin --</option>'; // Varsayılan seçenek
+                if (data.error) {
+                    console.error('Öğrenciler yüklenemedi:', data.error);
+                     studentSelect.innerHTML = '<option value="">Öğrenciler yüklenemedi!</option>';
+                } else {
+                    data.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.id;
+                        // Öğrenci adını ve belki ID'sini gösterelim
+                        option.textContent = `${student.name} (ID: ${student.id})`;
+                        studentSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Öğrencileri fetch ederken hata:', error);
+                studentSelect.innerHTML = '<option value="">Hata oluştu!</option>';
+            });
+    }
+
+    // Formu AJAX ile gönderme (sayfa yenilenmeden)
+    document.getElementById('assignGoalForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Formun normal gönderimini engelle
+        const form = event.target;
+        const formData = new FormData(form);
+        const messageDiv = document.getElementById('assignGoalMessage');
+        messageDiv.textContent = 'İşleniyor...';
+        messageDiv.style.color = 'orange';
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json()) // Yanıtı JSON olarak işle
+        .then(data => {
+            if (data.success) {
+                messageDiv.textContent = data.message || 'Atama başarıyla kaydedildi!';
+                messageDiv.style.color = 'green';
+                // Formu sıfırla veya popup'ı kapat
+                // form.reset();
+                // setTimeout(closeAssignGoalPopup, 1500); // 1.5 saniye sonra kapat
+            } else {
+                messageDiv.textContent = 'Hata: ' + (data.message || data.error || 'Bilinmeyen bir hata oluştu.');
+                messageDiv.style.color = 'red';
+            }
+        })
+        .catch(error => {
+            console.error('Atama hatası:', error);
+            messageDiv.textContent = 'Bir ağ hatası oluştu.';
+            messageDiv.style.color = 'red';
+        });
+    });
 </script>
 </body>
 </html>
