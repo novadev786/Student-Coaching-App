@@ -40,17 +40,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $topic = trim($_POST['topic']);
     $question_count = !empty($_POST['question_count']) ? intval($_POST['question_count']) : null;
     $task_date = !empty($_POST['task_date']) ? $_POST['task_date'] : null;
+    $task_type = trim($_POST['task_type']);
 
     // Doğrulamalar
     if (empty($title)) {
         $error_message = "Görev başlığı boş bırakılamaz.";
     } elseif ($goal_id <= 0) {
         $error_message = "Geçerli bir hedef seçilmelidir.";
+    } elseif (empty($task_type)) {
+        $error_message = "Görev türü seçilmelidir.";
     } else {
         // Prepared Statement ile görev ekleme
-        $stmt = $conn->prepare("INSERT INTO tasks (goal_id, task_order, title, description, subject, topic, question_count, task_date, is_completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)");
+        $stmt = $conn->prepare("INSERT INTO tasks (goal_id, task_order, title, description, subject, topic, question_count, task_date, task_type, is_completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)");
         // Tür belirteçleri: iissssis (integer, integer, string, string, string, string, integer, string)
-        $stmt->bind_param("iissssis", $goal_id, $task_order, $title, $description, $subject, $topic, $question_count, $task_date);
+        $stmt->bind_param("iissssiss", $goal_id, $task_order, $title, $description, $subject, $topic, $question_count, $task_date, $task_type);
 
         if ($stmt->execute()) {
             $success_message = "Görev başarıyla eklendi! 🎉";
@@ -162,6 +165,13 @@ $conn->close();
 
                 <label for="question_count">Soru Sayısı Hedefi (Opsiyonel):</label>
                 <input type="number" id="question_count" name="question_count" min="0" value="<?php echo isset($_POST['question_count']) ? htmlspecialchars($_POST['question_count']) : ''; ?>">
+
+                <label for="task_type">Görev Türü:</label>
+                <select id="task_type" name="task_type" required>
+                    <option value="">-- Görev Türü Seçin --</option>
+                    <option value="exam_entry" <?php echo (isset($_POST['task_type']) && $_POST['task_type'] == 'exam_entry') ? 'selected' : ''; ?>>Deneme</option>
+                    <option value="general" <?php echo (isset($_POST['task_type']) && $_POST['task_type'] == 'general') ? 'selected' : ''; ?>>Soru Çözümü</option>
+                </select>
 
                 <label for="task_date">Görevin Tarihi (Opsiyonel):</label>
                 <input type="date" id="task_date" name="task_date" value="<?php echo isset($_POST['task_date']) ? htmlspecialchars($_POST['task_date']) : ''; ?>">

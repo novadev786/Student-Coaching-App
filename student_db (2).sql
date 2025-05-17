@@ -259,7 +259,7 @@ CREATE TABLE `tasks` (
   `subject` varchar(100) DEFAULT NULL,
   `topic` varchar(150) DEFAULT NULL,
   `question_count` int(11) DEFAULT NULL,
-  `task_type` varchar(50) DEFAULT 'general',
+  `task_type` varchar(50),
   `task_date` date DEFAULT NULL,
   `is_completed` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
