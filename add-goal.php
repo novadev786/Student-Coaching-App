@@ -12,34 +12,68 @@ $success_message = '';
 $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Formdan gelen verileri al ve temizle
-    $teacher_id = 1; // Örnek: Oturumdan veya sabit bir değerden alınmalı
+    // Formdan gelen verileri al
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
-    // Tarihleri alırken boş olup olmadığını kontrol et
     $start_date = !empty($_POST['start_date']) ? $_POST['start_date'] : null;
-    $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
+    $subjects = isset($_POST['subjects']) ? $_POST['subjects'] : [];
+    $teacher_id = 1; // Admin ekliyor gibi sabitliyoruz
 
-    // Basit doğrulama (gerekirse daha kapsamlı yapılabilir)
+    // Doğrulamalar
     if (empty($title)) {
-        $error_message = "Hedef başlığı boş bırakılamaz.";
+        $error_message = "Deneme sınavı adı boş bırakılamaz.";
+    } elseif (empty($subjects)) {
+        $error_message = "En az bir ders eklenmelidir.";
     } else {
-        // Prepared Statement kullanarak güvenli ekleme
-        $stmt = $conn->prepare("INSERT INTO goals (teacher_id, title, description, start_date, end_date) VALUES (?, ?, ?, ?, ?)");
+        // Transaction başlat
+        $conn->begin_transaction();
 
-        // Tür belirteçleri: i = integer, s = string, d = double, b = blob
-        // start_date ve end_date NULL olabileceği için 's' kullanıyoruz,
-        // bind_param NULL değerleri doğru şekilde işler.
-        $stmt->bind_param("issss", $teacher_id, $title, $description, $start_date, $end_date);
+        try {
+            // Hedefi ekle
+            $stmt_goal = $conn->prepare("INSERT INTO goals (teacher_id, title, description, start_date) VALUES (?, ?, ?, ?)");
+            $stmt_goal->bind_param("isss", $teacher_id, $title, $description, $start_date);
+            
+            if (!$stmt_goal->execute()) {
+                throw new Exception("Hedef eklenirken hata oluştu: " . $stmt_goal->error);
+            }
+            
+            $goal_id = $conn->insert_id;
+            $stmt_goal->close();
 
-        if ($stmt->execute()) {
-            $success_message = "Hedef başarıyla eklendi! ✅";
-        } else {
-            $error_message = "Hedef eklenirken bir hata oluştu: " . $stmt->error;
-            // Geliştirme aşamasında $stmt->error loglanabilir
-            error_log("Goal Insert Error: " . $stmt->error);
+            // Her ders için görev oluştur
+            $task_order = 1;
+            $stmt_task = $conn->prepare("INSERT INTO tasks (goal_id, task_order, title, subject, question_count, topics, task_type, task_date) VALUES (?, ?, ?, ?, ?, ?, 'exam_entry', ?)");
+            
+            foreach ($subjects as $subject) {
+                $subject_name = trim($subject['name']);
+                $question_count = intval($subject['question_count']);
+                $topics = trim($subject['topics']);
+                
+                if (empty($subject_name) || $question_count <= 0) {
+                    throw new Exception("Geçersiz ders bilgisi.");
+                }
+
+                $stmt_task->bind_param("iississ", $goal_id, $task_order, $subject_name, $subject_name, $question_count, $topics, $start_date);
+                
+                if (!$stmt_task->execute()) {
+                    throw new Exception("Görev eklenirken hata oluştu: " . $stmt_task->error);
+                }
+                
+                $task_order++;
+            }
+            
+            $stmt_task->close();
+            
+            // Transaction'ı onayla
+            $conn->commit();
+            $success_message = "Deneme sınavı başarıyla eklendi! 🎉";
+            
+        } catch (Exception $e) {
+            // Hata durumunda transaction'ı geri al
+            $conn->rollback();
+            $error_message = $e->getMessage();
+            error_log("Error in add-goal.php: " . $e->getMessage());
         }
-        $stmt->close();
     }
 }
 $conn->close();
@@ -70,7 +104,7 @@ $conn->close();
 </head>
 <body>
     <div class="container">
-        <h2>🎯 Yeni Hedef Ekle</h2>
+        <h2>🎯 Yeni Deneme Sınavı Ekle</h2>
 
         <?php if (!empty($success_message)): ?>
             <div class="message success"><?php echo $success_message; ?></div>
@@ -80,21 +114,80 @@ $conn->close();
         <?php endif; ?>
 
         <form method="POST" action="add-goal.php">
-            <label for="title">Hedef Başlığı:</label>
+            <label for="title">Deneme Sınavı Adı:</label>
             <input type="text" id="title" name="title" required value="<?php echo isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>">
 
             <label for="description">Açıklama:</label>
             <textarea id="description" name="description" rows="4"><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
 
-            <label for="start_date">Başlangıç Tarihi (Opsiyonel):</label>
-            <input type="date" id="start_date" name="start_date" value="<?php echo isset($_POST['start_date']) ? htmlspecialchars($_POST['start_date']) : ''; ?>">
+            <div id="subjects-container">
+                <h3>Dersler</h3>
+                <div class="subject-entry">
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <label for="subject_name_1">Ders Adı:</label>
+                            <input type="text" id="subject_name_1" name="subjects[1][name]" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="subject_question_count_1">Soru Sayısı:</label>
+                            <input type="number" id="subject_question_count_1" name="subjects[1][question_count]" min="1" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="subject_topics_1">Konu(lar):</label>
+                            <input type="text" id="subject_topics_1" name="subjects[1][topics]" placeholder="Virgülle ayırın (örn: Üslü Sayılar, Kümeler)" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <label for="end_date">Bitiş Tarihi (Opsiyonel):</label>
-            <input type="date" id="end_date" name="end_date" value="<?php echo isset($_POST['end_date']) ? htmlspecialchars($_POST['end_date']) : ''; ?>">
+            <button type="button" onclick="addSubjectField()" style="background-color: #007bff; margin-top: 10px;">+ Ders Ekle</button>
 
-            <button type="submit">Hedefi Kaydet</button>
+            <label for="start_date">Sınav Tarihi:</label>
+            <input type="date" id="start_date" name="start_date" required value="<?php echo isset($_POST['start_date']) ? htmlspecialchars($_POST['start_date']) : ''; ?>">
+
+            <button type="submit" style="margin-top: 20px;">Deneme Sınavını Kaydet</button>
         </form>
-         <a href="admin-panel.html" class="back-link">← Admin Paneline Geri Dön</a>
+
+        <script>
+            let subjectCount = 6;
+            const defaultSubjects = [
+                {name: 'Türkçe', question_count: 20},
+                {name: 'Matematik', question_count: 20},
+                {name: 'Fen', question_count: 20},
+                {name: 'İnkılap', question_count: 10},
+                {name: 'İngilizce', question_count: 10},
+                {name: 'Din', question_count: 10}
+            ];
+            window.addEventListener('DOMContentLoaded', () => {
+                const container = document.getElementById('subjects-container');
+                container.innerHTML = '<h3>Dersler</h3>';
+                defaultSubjects.forEach((subj, i) => {
+                    const idx = i+1;
+                    container.innerHTML += `
+                    <div class="subject-entry">
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <label for="subject_name_${idx}">Ders Adı:</label>
+                                <input type="text" id="subject_name_${idx}" name="subjects[${idx}][name]" value="${subj.name}" required>
+                            </div>
+                            <div style="flex: 1;">
+                                <label for="subject_question_count_${idx}">Soru Sayısı:</label>
+                                <input type="number" id="subject_question_count_${idx}" name="subjects[${idx}][question_count]" min="1" value="${subj.question_count}" required>
+                            </div>
+                            <div style="flex: 1;">
+                                <label for="subject_topics_${idx}">Konu(lar):</label>
+                                <input type="text" id="subject_topics_${idx}" name="subjects[${idx}][topics]" placeholder="Virgülle ayırın (örn: Paragraf, Cümle)" required>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; margin-bottom: 5px;">
+                                <button type="button" onclick="this.parentElement.parentElement.parentElement.remove()" style="background-color: #dc3545; padding: 8px;">Sil</button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            });
+        </script>
+
+        <a href="admin-panel.html" class="back-link">← Admin Paneline Geri Dön</a>
     </div>
 </body>
 </html>

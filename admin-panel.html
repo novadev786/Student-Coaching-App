@@ -197,6 +197,13 @@
             float: right;
             cursor: pointer;
         }
+        #studentExamResultsPopup .popup-content {
+            max-width: 1200px;
+            width: 98%;
+            max-height: 95vh;
+            padding: 32px;
+            font-size: 1.08em;
+        }
     </style>
 </head>
 <body>
@@ -275,13 +282,13 @@
     
 
     <div class="panel">
-        <h2>📖 Açılan Dersler</h2>
-        <button class="btn" onclick="openAllCoursesPopup()">Tüm Dersleri Göster</button>
+        <h2>✍️ Öğrenciye Görev Ata</h2>
+        <button class="btn" onclick="openTaskPopup()">+ Görev Tanımla</button>
     </div>
 
     <div class="panel">
-        <h2>✍️ Öğrenciye Görev Ata</h2>
-        <button class="btn" onclick="openTaskPopup()">+ Görev Tanımla</button>
+        <h2>🧑‍🎓 Öğrenci Deneme Sonuçları</h2>
+        <button class="btn" onclick="openStudentExamResultsPopup()">Öğrenci Deneme Sonuçları</button>
     </div>
 
     
@@ -365,6 +372,35 @@
         <button class="close-btn" onclick="closeAllCoursesPopup()">X</button>
         <h3>Bu Dönem Açılan Dersler</h3>
         <div id="coursesTableContainer">Yükleniyor...</div>
+    </div>
+</div>
+
+<div class="popup" id="studentExamResultsPopup" style="display:none;">
+    <div class="popup-content">
+        <button class="close-btn" onclick="closeStudentExamResultsPopup()">X</button>
+        <h3>Öğrenci Deneme Sonuçları</h3>
+        <div id="studentExamResultsLoading">Yükleniyor...</div>
+        <table style="width:100%;margin-top:20px;display:none;" id="studentExamResultsTableWrapper">
+            <thead>
+                <tr>
+                    <th>Öğrenci Adı</th>
+                    <th>Deneme Sınavı</th>
+                    <th>Türkçe (D/Y/B)</th>
+                    <th>Türkçe Yanlış Konular</th>
+                    <th>Matematik (D/Y/B)</th>
+                    <th>Matematik Yanlış Konular</th>
+                    <th>Fen (D/Y/B)</th>
+                    <th>Fen Yanlış Konular</th>
+                    <th>İnkılap (D/Y/B)</th>
+                    <th>İnkılap Yanlış Konular</th>
+                    <th>İngilizce (D/Y/B)</th>
+                    <th>İngilizce Yanlış Konular</th>
+                    <th>Din (D/Y/B)</th>
+                    <th>Din Yanlış Konular</th>
+                </tr>
+            </thead>
+            <tbody id="studentExamResultsTable"></tbody>
+        </table>
     </div>
 </div>
 
@@ -585,6 +621,50 @@ function openAssignGoalPopup() {
             messageDiv.style.color = 'red';
         });
     });
+
+    function openStudentExamResultsPopup() {
+        document.getElementById('studentExamResultsPopup').style.display = 'flex';
+        document.getElementById('studentExamResultsLoading').style.display = 'block';
+        document.getElementById('studentExamResultsTableWrapper').style.display = 'none';
+        fetch('get_all_student_exam_results.php')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('studentExamResultsTable');
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="14">Henüz sonuç giren öğrenci yok.</td></tr>';
+                } else {
+                    data.forEach(row => {
+                        tbody.innerHTML += `<tr>
+                            <td>${row.student_name}</td>
+                            <td>${row.exam_title}</td>
+                            <td>${row['Türkçe']}</td>
+                            <td>${row['Türkçe_wrong_topics']}</td>
+                            <td>${row['Matematik']}</td>
+                            <td>${row['Matematik_wrong_topics']}</td>
+                            <td>${row['Fen']}</td>
+                            <td>${row['Fen_wrong_topics']}</td>
+                            <td>${row['İnkılap']}</td>
+                            <td>${row['İnkılap_wrong_topics']}</td>
+                            <td>${row['İngilizce']}</td>
+                            <td>${row['İngilizce_wrong_topics']}</td>
+                            <td>${row['Din']}</td>
+                            <td>${row['Din_wrong_topics']}</td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('studentExamResultsLoading').style.display = 'none';
+                document.getElementById('studentExamResultsTableWrapper').style.display = 'table';
+            })
+            .catch(err => {
+                document.getElementById('studentExamResultsLoading').innerText = 'Hata oluştu.';
+                document.getElementById('studentExamResultsTableWrapper').style.display = 'none';
+            });
+    }
+
+    function closeStudentExamResultsPopup() {
+        document.getElementById('studentExamResultsPopup').style.display = 'none';
+    }
 </script>
 </body>
 </html>

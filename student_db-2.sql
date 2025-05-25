@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: May 13, 2025 at 06:37 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Anamakine: localhost
+-- Üretim Zamanı: 25 May 2025, 20:45:47
+-- Sunucu sürümü: 10.4.28-MariaDB
+-- PHP Sürümü: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `student_db`
+-- Veritabanı: `student_db`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `courses`
+-- Tablo için tablo yapısı `courses`
 --
 
 CREATE TABLE `courses` (
@@ -37,7 +37,7 @@ CREATE TABLE `courses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `courses`
+-- Tablo döküm verisi `courses`
 --
 
 INSERT INTO `courses` (`id`, `course_code`, `course_name`, `course_teacher`, `course_department`, `created_at`) VALUES
@@ -50,7 +50,7 @@ INSERT INTO `courses` (`id`, `course_code`, `course_name`, `course_teacher`, `co
 -- --------------------------------------------------------
 
 --
--- Table structure for table `goals`
+-- Tablo için tablo yapısı `goals`
 --
 
 CREATE TABLE `goals` (
@@ -64,18 +64,23 @@ CREATE TABLE `goals` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `goals`
+-- Tablo döküm verisi `goals`
 --
 
 INSERT INTO `goals` (`id`, `teacher_id`, `title`, `description`, `end_date`, `start_date`, `created_at`) VALUES
 (1, 1, 'dsadsadsa', 'dasdadsaddas', NULL, NULL, '2025-05-01 19:15:48'),
 (2, 1, '3 Günde 70 Soru', 'dsadasdsadasdsa', NULL, NULL, '2025-05-01 19:20:42'),
-(3, 1, 'fen 1000 soru', '', NULL, NULL, '2025-05-09 09:05:39');
+(3, 1, 'fen 1000 soru', '', NULL, NULL, '2025-05-09 09:05:39'),
+(4, 1, 'Tudem', '', NULL, '2025-05-24', '2025-05-22 14:50:35'),
+(5, 1, 'Zor sınav', '', NULL, '2025-05-24', '2025-05-22 15:32:48'),
+(6, 1, 'Kolay sınav', '', NULL, '2025-05-23', '2025-05-22 15:38:23'),
+(7, 1, 'Orta Şeker Deneme', '', NULL, '2025-05-23', '2025-05-22 15:53:59'),
+(8, 1, 'GALAKTİK DENEME', '', NULL, '2025-05-23', '2025-05-22 15:59:59');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `old_tasks`
+-- Tablo için tablo yapısı `old_tasks`
 --
 
 CREATE TABLE `old_tasks` (
@@ -88,7 +93,7 @@ CREATE TABLE `old_tasks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `old_tasks`
+-- Tablo döküm verisi `old_tasks`
 --
 
 INSERT INTO `old_tasks` (`id`, `goal_id`, `title`, `description`, `due_date`, `is_completed`) VALUES
@@ -103,7 +108,7 @@ INSERT INTO `old_tasks` (`id`, `goal_id`, `title`, `description`, `due_date`, `i
 -- --------------------------------------------------------
 
 --
--- Table structure for table `selected_courses`
+-- Tablo için tablo yapısı `selected_courses`
 --
 
 CREATE TABLE `selected_courses` (
@@ -116,7 +121,7 @@ CREATE TABLE `selected_courses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `selected_courses`
+-- Tablo döküm verisi `selected_courses`
 --
 
 INSERT INTO `selected_courses` (`id`, `course_code`, `course_name`, `course_teacher`, `course_department`, `selected_at`) VALUES
@@ -127,7 +132,7 @@ INSERT INTO `selected_courses` (`id`, `course_code`, `course_name`, `course_teac
 -- --------------------------------------------------------
 
 --
--- Table structure for table `student_daily_tasks`
+-- Tablo için tablo yapısı `student_daily_tasks`
 --
 
 CREATE TABLE `student_daily_tasks` (
@@ -144,7 +149,7 @@ CREATE TABLE `student_daily_tasks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `student_daily_tasks`
+-- Tablo döküm verisi `student_daily_tasks`
 --
 
 INSERT INTO `student_daily_tasks` (`id`, `student_id`, `task_title`, `task_description`, `points`, `start_date`, `due_date`, `is_done`, `created_at`, `updated_at`) VALUES
@@ -155,7 +160,7 @@ INSERT INTO `student_daily_tasks` (`id`, `student_id`, `task_title`, `task_descr
 -- --------------------------------------------------------
 
 --
--- Table structure for table `student_exam_entries`
+-- Tablo için tablo yapısı `student_exam_entries`
 --
 
 CREATE TABLE `student_exam_entries` (
@@ -173,7 +178,7 @@ CREATE TABLE `student_exam_entries` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `student_exam_subject_results`
+-- Tablo için tablo yapısı `student_exam_subject_results`
 --
 
 CREATE TABLE `student_exam_subject_results` (
@@ -186,21 +191,27 @@ CREATE TABLE `student_exam_subject_results` (
   `correct_count` int(11) DEFAULT 0,
   `wrong_count` int(11) DEFAULT 0,
   `blank_count` int(11) DEFAULT 0,
+  `wrong_topics` text DEFAULT NULL,
   `net_score` decimal(5,2) GENERATED ALWAYS AS (`correct_count` - `wrong_count` / 4.0) STORED,
   `entry_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `student_exam_subject_results`
+-- Tablo döküm verisi `student_exam_subject_results`
 --
 
-INSERT INTO `student_exam_subject_results` (`id`, `student_id`, `task_id`, `exam_entry_id`, `exam_name`, `subject_name`, `correct_count`, `wrong_count`, `blank_count`, `entry_date`) VALUES
-(1, 10, 4, NULL, '', 'mat', 37, 2, 1, '2025-05-12 19:12:12');
+INSERT INTO `student_exam_subject_results` (`id`, `student_id`, `task_id`, `exam_entry_id`, `exam_name`, `subject_name`, `correct_count`, `wrong_count`, `blank_count`, `wrong_topics`, `entry_date`) VALUES
+(10, 9, 17, NULL, NULL, 'Türkçe', 18, 2, 0, '[\"YAZIM\",\"YAZIM\"]', '2025-05-22 13:01:01'),
+(11, 9, 18, NULL, NULL, 'Matematik', 19, 1, 0, '[\"İNTEGRAL\"]', '2025-05-22 13:01:12'),
+(12, 9, 19, NULL, NULL, 'Fen', 18, 2, 0, '[\"ASİT\",\"BAZ\"]', '2025-05-22 13:01:22'),
+(13, 9, 20, NULL, NULL, 'İnkılap', 8, 2, 0, '[\"ATATÜRK\",\"İNÖNÜ\"]', '2025-05-22 13:01:46'),
+(14, 9, 21, NULL, NULL, 'İngilizce', 9, 1, 0, '[\"AAA\"]', '2025-05-22 13:01:59'),
+(15, 9, 22, NULL, NULL, 'Din', 8, 2, 0, '[\"ORUÇ\",\"ZEKAT\"]', '2025-05-22 13:02:10');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `student_goal_assignments`
+-- Tablo için tablo yapısı `student_goal_assignments`
 --
 
 CREATE TABLE `student_goal_assignments` (
@@ -211,19 +222,24 @@ CREATE TABLE `student_goal_assignments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `student_goal_assignments`
+-- Tablo döküm verisi `student_goal_assignments`
 --
 
 INSERT INTO `student_goal_assignments` (`id`, `student_id`, `goal_id`, `assigned_at`) VALUES
 (1, 2, 3, '2025-05-12 11:48:29'),
 (3, 10, 2, '2025-05-12 13:48:54'),
 (4, 10, 3, '2025-05-12 14:17:34'),
-(5, 10, 1, '2025-05-12 14:42:21');
+(5, 10, 1, '2025-05-12 14:42:21'),
+(6, 9, 4, '2025-05-22 11:50:45'),
+(7, 9, 5, '2025-05-22 12:33:01'),
+(8, 9, 6, '2025-05-22 12:38:31'),
+(9, 9, 7, '2025-05-22 12:54:11'),
+(10, 9, 8, '2025-05-22 13:00:25');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `student_task_status`
+-- Tablo için tablo yapısı `student_task_status`
 --
 
 CREATE TABLE `student_task_status` (
@@ -236,18 +252,32 @@ CREATE TABLE `student_task_status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `student_task_status`
+-- Tablo döküm verisi `student_task_status`
 --
 
 INSERT INTO `student_task_status` (`id`, `student_id`, `task_id`, `is_completed`, `completion_date`, `last_updated`) VALUES
 (1, 10, 2, 0, NULL, '2025-05-12 14:41:11'),
 (11, 10, 3, 0, NULL, '2025-05-12 14:17:54'),
-(15, 10, 4, 0, NULL, '2025-05-12 19:05:43');
+(15, 10, 4, 0, NULL, '2025-05-12 19:05:43'),
+(17, 1, 5, 1, '2025-05-22 11:51:27', '2025-05-22 11:51:27'),
+(18, 1, 6, 1, '2025-05-22 11:57:09', '2025-05-22 11:57:09'),
+(19, 9, 7, 0, NULL, '2025-05-22 12:37:20'),
+(20, 9, 8, 1, '2025-05-22 12:33:43', '2025-05-22 12:33:43'),
+(24, 9, 9, 1, '2025-05-22 12:38:53', '2025-05-22 12:38:53'),
+(25, 9, 10, 1, '2025-05-22 12:39:14', '2025-05-22 12:39:14'),
+(26, 9, 11, 1, '2025-05-22 12:54:43', '2025-05-22 12:54:43'),
+(27, 9, 12, 1, '2025-05-22 12:54:58', '2025-05-22 12:54:58'),
+(28, 9, 17, 1, '2025-05-22 13:01:01', '2025-05-22 13:01:01'),
+(29, 9, 18, 1, '2025-05-22 13:01:12', '2025-05-22 13:01:12'),
+(30, 9, 19, 1, '2025-05-22 13:01:22', '2025-05-22 13:01:22'),
+(31, 9, 20, 1, '2025-05-22 13:01:46', '2025-05-22 13:01:46'),
+(32, 9, 21, 1, '2025-05-22 13:01:59', '2025-05-22 13:01:59'),
+(33, 9, 22, 1, '2025-05-22 13:02:10', '2025-05-22 13:02:10');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tasks`
+-- Tablo için tablo yapısı `tasks`
 --
 
 CREATE TABLE `tasks` (
@@ -259,7 +289,8 @@ CREATE TABLE `tasks` (
   `subject` varchar(100) DEFAULT NULL,
   `topic` varchar(150) DEFAULT NULL,
   `question_count` int(11) DEFAULT NULL,
-  `task_type` varchar(50),
+  `topics` text DEFAULT NULL,
+  `task_type` varchar(50) DEFAULT NULL,
   `task_date` date DEFAULT NULL,
   `is_completed` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -267,19 +298,21 @@ CREATE TABLE `tasks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `tasks`
+-- Tablo döküm verisi `tasks`
 --
 
-INSERT INTO `tasks` (`id`, `goal_id`, `task_order`, `title`, `description`, `subject`, `topic`, `question_count`, `task_type`, `task_date`, `is_completed`, `created_at`, `updated_at`) VALUES
-(1, 1, 4, 'TYT DENEME-ACİL MATEMATİK', '', '', '', NULL, 'exam_entry', NULL, 0, '2025-05-12 11:49:21', '2025-05-12 14:43:25'),
-(2, 2, 1, 'haftalık mat', '', '', '', NULL, 'general', NULL, 0, '2025-05-12 13:52:36', '2025-05-12 13:52:36'),
-(3, 3, 1, 'denemetest', '', '', '', NULL, 'exam_entry', NULL, 0, '2025-05-12 14:14:46', '2025-05-12 14:15:04'),
-(4, 1, 1, 'denemetest2', '', '', '', NULL, 'exam_entry', NULL, 0, '2025-05-12 14:42:06', '2025-05-12 14:43:33');
+INSERT INTO `tasks` (`id`, `goal_id`, `task_order`, `title`, `description`, `subject`, `topic`, `question_count`, `topics`, `task_type`, `task_date`, `is_completed`, `created_at`, `updated_at`) VALUES
+(17, 8, 1, 'Türkçe', NULL, 'Türkçe', NULL, 20, 'YAZIM, NOKTALAMA', 'exam_entry', '2025-05-23', 0, '2025-05-22 12:59:59', '2025-05-22 12:59:59'),
+(18, 8, 2, 'Matematik', NULL, 'Matematik', NULL, 20, 'TÜREV, İNTEGRAL', 'exam_entry', '2025-05-23', 0, '2025-05-22 12:59:59', '2025-05-22 12:59:59'),
+(19, 8, 3, 'Fen', NULL, 'Fen', NULL, 20, 'ASİT, BAZ, TUZ', 'exam_entry', '2025-05-23', 0, '2025-05-22 12:59:59', '2025-05-22 12:59:59'),
+(20, 8, 4, 'İnkılap', NULL, 'İnkılap', NULL, 10, 'ATATÜRK, İNÖNÜ, İLKELER', 'exam_entry', '2025-05-23', 0, '2025-05-22 12:59:59', '2025-05-22 12:59:59'),
+(21, 8, 5, 'İngilizce', NULL, 'İngilizce', NULL, 10, 'AAA, BBB, CCC', 'exam_entry', '2025-05-23', 0, '2025-05-22 12:59:59', '2025-05-22 12:59:59'),
+(22, 8, 6, 'Din', NULL, 'Din', NULL, 10, 'ORUÇ, ZEKAT, HAC', 'exam_entry', '2025-05-23', 0, '2025-05-22 12:59:59', '2025-05-22 12:59:59');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Tablo için tablo yapısı `users`
 --
 
 CREATE TABLE `users` (
@@ -291,7 +324,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `users`
+-- Tablo döküm verisi `users`
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`) VALUES
@@ -307,41 +340,41 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`) VALUES
 (11, 'ofbıktım', 'ob@gmail.com', '123', 'student');
 
 --
--- Indexes for dumped tables
+-- Dökümü yapılmış tablolar için indeksler
 --
 
 --
--- Indexes for table `courses`
+-- Tablo için indeksler `courses`
 --
 ALTER TABLE `courses`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `goals`
+-- Tablo için indeksler `goals`
 --
 ALTER TABLE `goals`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `old_tasks`
+-- Tablo için indeksler `old_tasks`
 --
 ALTER TABLE `old_tasks`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `selected_courses`
+-- Tablo için indeksler `selected_courses`
 --
 ALTER TABLE `selected_courses`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `student_daily_tasks`
+-- Tablo için indeksler `student_daily_tasks`
 --
 ALTER TABLE `student_daily_tasks`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `student_exam_entries`
+-- Tablo için indeksler `student_exam_entries`
 --
 ALTER TABLE `student_exam_entries`
   ADD PRIMARY KEY (`id`),
@@ -349,7 +382,7 @@ ALTER TABLE `student_exam_entries`
   ADD KEY `task_id` (`task_id`);
 
 --
--- Indexes for table `student_exam_subject_results`
+-- Tablo için indeksler `student_exam_subject_results`
 --
 ALTER TABLE `student_exam_subject_results`
   ADD PRIMARY KEY (`id`),
@@ -357,7 +390,7 @@ ALTER TABLE `student_exam_subject_results`
   ADD KEY `task_id` (`task_id`);
 
 --
--- Indexes for table `student_goal_assignments`
+-- Tablo için indeksler `student_goal_assignments`
 --
 ALTER TABLE `student_goal_assignments`
   ADD PRIMARY KEY (`id`),
@@ -365,7 +398,7 @@ ALTER TABLE `student_goal_assignments`
   ADD KEY `goal_id` (`goal_id`);
 
 --
--- Indexes for table `student_task_status`
+-- Tablo için indeksler `student_task_status`
 --
 ALTER TABLE `student_task_status`
   ADD PRIMARY KEY (`id`),
@@ -373,125 +406,87 @@ ALTER TABLE `student_task_status`
   ADD KEY `task_id` (`task_id`);
 
 --
--- Indexes for table `tasks`
+-- Tablo için indeksler `tasks`
 --
 ALTER TABLE `tasks`
   ADD PRIMARY KEY (`id`),
   ADD KEY `goal_id` (`goal_id`);
 
 --
--- Indexes for table `users`
+-- Tablo için indeksler `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- Dökümü yapılmış tablolar için AUTO_INCREMENT değeri
 --
 
 --
--- AUTO_INCREMENT for table `courses`
+-- Tablo için AUTO_INCREMENT değeri `courses`
 --
 ALTER TABLE `courses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `goals`
+-- Tablo için AUTO_INCREMENT değeri `goals`
 --
 ALTER TABLE `goals`
-  MODIFY `id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT for table `old_tasks`
+-- Tablo için AUTO_INCREMENT değeri `old_tasks`
 --
 ALTER TABLE `old_tasks`
   MODIFY `id` int(16) NOT NULL AUTO_INCREMENT COMMENT 'Primary Key – Otomatik artan', AUTO_INCREMENT=8;
 
 --
--- AUTO_INCREMENT for table `selected_courses`
+-- Tablo için AUTO_INCREMENT değeri `selected_courses`
 --
 ALTER TABLE `selected_courses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT for table `student_daily_tasks`
+-- Tablo için AUTO_INCREMENT değeri `student_daily_tasks`
 --
 ALTER TABLE `student_daily_tasks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `student_exam_entries`
+-- Tablo için AUTO_INCREMENT değeri `student_exam_entries`
 --
 ALTER TABLE `student_exam_entries`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `student_exam_subject_results`
+-- Tablo için AUTO_INCREMENT değeri `student_exam_subject_results`
 --
 ALTER TABLE `student_exam_subject_results`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- AUTO_INCREMENT for table `student_goal_assignments`
+-- Tablo için AUTO_INCREMENT değeri `student_goal_assignments`
 --
 ALTER TABLE `student_goal_assignments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `student_task_status`
+-- Tablo için AUTO_INCREMENT değeri `student_task_status`
 --
 ALTER TABLE `student_task_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
--- AUTO_INCREMENT for table `tasks`
+-- Tablo için AUTO_INCREMENT değeri `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
--- AUTO_INCREMENT for table `users`
+-- Tablo için AUTO_INCREMENT değeri `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `student_exam_entries`
---
-ALTER TABLE `student_exam_entries`
-  ADD CONSTRAINT `student_exam_entries_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `student_exam_entries_ibfk_2` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `student_exam_subject_results`
---
-ALTER TABLE `student_exam_subject_results`
-  ADD CONSTRAINT `student_exam_subject_results_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `student_exam_subject_results_ibfk_2` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `student_goal_assignments`
---
-ALTER TABLE `student_goal_assignments`
-  ADD CONSTRAINT `student_goal_assignments_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `student_goal_assignments_ibfk_2` FOREIGN KEY (`goal_id`) REFERENCES `goals` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `student_task_status`
---
-ALTER TABLE `student_task_status`
-  ADD CONSTRAINT `student_task_status_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `student_task_status_ibfk_2` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `tasks`
---
-ALTER TABLE `tasks`
-  ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`goal_id`) REFERENCES `goals` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

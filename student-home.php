@@ -420,46 +420,13 @@ footer p {
         <div class="popup-content">
             <button class="close-btn" onclick="closeExamEntryPopup()">X</button>
             <h3 id="examEntryPopupTitle">Sınav Sonucu Gir</h3>
-            <div style="display: flex; gap: 20px;">
-                <div style="flex: 1;">
-                    <form id="examEntryForm_new">
-                        <input type="hidden" id="examEntryTaskId_new" name="task_id_new">
-                        {/* Genel Sınav Adı input'u kaldırılmıştı, istersen geri ekleyebilirsin */}
-                        <hr style="margin: 15px 0;">
-                        <h4>Ders Ekle:</h4>
-                        <div>
-                            <label for="subjectName_new">Ders Adı:</label>
-                            <input type="text" id="subjectName_new" name="subject_name_new" style="width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                        </div>
-                        <div>
-                            <label for="correctCount_new">Doğru Sayısı:</label>
-                            <input type="number" id="correctCount_new" name="correct_count_new" min="0" value="0" style="width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                        </div>
-                        <div>
-                            <label for="wrongCount_new">Yanlış Sayısı:</label>
-                            <input type="number" id="wrongCount_new" name="wrong_count_new" min="0" value="0" style="width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                        </div>
-                        <div>
-                            <label for="blankCount_new">Boş Sayısı:</label>
-                            <input type="number" id="blankCount_new" name="blank_count_new" min="0" value="0" style="width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                        </div>
-                        <button type="button" onclick="addSubjectResult()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Bu Dersi Listeye Ekle</button>
-                    </form>
+            <div id="examEntryForm">
+                <input type="hidden" id="examEntryTaskId" name="task_id">
+                <div id="subjectResults">
+                    <!-- Ders sonuçları buraya dinamik olarak eklenecek -->
                 </div>
-                <div style="flex: 1.5; display: flex; flex-direction: column; min-height: 350px;">
-                     <h4>Eklenen Ders Sonuçları:</h4>
-                     <ul id="subjectResultList" style="list-style: none; padding: 0; margin-bottom: 15px; max-height: 150px; overflow-y: auto; border: 1px solid #eee; padding:10px;">
-                         <li class="no-subjects">Henüz ders eklenmedi.</li>
-                     </ul>
-                     <div style="flex-grow: 1; position: relative; min-height: 200px;">
-                        <canvas id="examNetChart" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
-                     </div>
-                </div>
+                <button onclick="saveExamResults()" style="margin-top: 20px; width: 100%;">Sonuçları Kaydet</button>
             </div>
-            <div style="text-align: center; margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px;">
-                <button type="button" onclick="saveAllSubjectResults()" style="padding: 12px 25px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em;">Tüm Sonuçları Kaydet</button>
-            </div>
-            <div id="examEntryMessage_new" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
         </div>
     </div>
 
@@ -648,163 +615,99 @@ footer p {
         }
     }
         // --- Sınav Sonuç Girişi Fonksiyonları ---
-        let currentExamSubjects = [];
-        let examNetChartInstance = null;
         function openExamEntryPopup(taskId, taskTitle) {
-            console.log("openExamEntryPopup çağrıldı. Task ID:", taskId, "Başlık:", taskTitle);
-            document.getElementById('examEntryTaskId_new').value = taskId;
-            document.getElementById('examEntryPopupTitle').textContent = `Sonuç Gir: ${taskTitle}`;
-            document.getElementById('examEntryForm_new').reset();
-            document.getElementById('examEntryMessage_new').textContent = '';
-            document.getElementById('subjectResultList').innerHTML = '<li class="no-subjects">Henüz ders eklenmedi.</li>';
-            currentExamSubjects = [];
-            if (examNetChartInstance) {
-                examNetChartInstance.destroy();
-                examNetChartInstance = null;
-            }
-            const examNetChartCanvas = document.getElementById('examNetChart');
-            if(examNetChartCanvas) examNetChartCanvas.style.display = 'none';
-
+            document.getElementById('examEntryTaskId').value = taskId;
+            document.getElementById('examEntryPopupTitle').textContent = taskTitle;
+            // Ders bilgilerini getir
+            fetch(`get_task_details.php?task_id=${taskId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const subjectResults = document.getElementById('subjectResults');
+                    const topicsArr = data.topics ? data.topics.split(',').map(t => t.trim()).filter(Boolean) : [];
+                    subjectResults.innerHTML = `
+                        <div class="subject-result">
+                            <h4>${data.subject}</h4>
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <div style="flex: 1;">
+                                    <label>Doğru Sayısı:</label>
+                                    <input type="number" id="correctCount" min="0" max="${data.question_count}" value="0" required>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label>Yanlış Sayısı:</label>
+                                    <input type="number" id="wrongCount" min="0" max="${data.question_count}" value="0" required oninput="updateTopicSelects()">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label>Boş Sayısı:</label>
+                                    <input type="number" id="blankCount" min="0" max="${data.question_count}" value="0" required>
+                                </div>
+                            </div>
+                            <div id="topicSelectContainer"></div>
+                        </div>
+                    `;
+                    window.examTopicsArr = topicsArr; // globalde tut
+                });
             document.getElementById('examEntryPopup').style.display = 'flex';
-            console.log("Popup gösterilmeye çalışılıyor.");
-            // loadPreviousSubjectResults(taskId); // Bu fonksiyonu daha sonra ekleyebiliriz
         }
-        function closeExamEntryPopup() {
-            document.getElementById('examEntryPopup').style.display = 'none';
-        }
-        function addSubjectResult() {
-            const subjectName = document.getElementById('subjectName_new').value.trim();
-            const correct = parseInt(document.getElementById('correctCount_new').value) || 0;
-            const wrong = parseInt(document.getElementById('wrongCount_new').value) || 0;
-            const blank = parseInt(document.getElementById('blankCount_new').value) || 0;
 
-            if (!subjectName) {
-                alert("Lütfen ders adını girin.");
-                return;
+        function updateTopicSelects() {
+            const wrongCount = parseInt(document.getElementById('wrongCount').value) || 0;
+            const container = document.getElementById('topicSelectContainer');
+            const topicsArr = window.examTopicsArr || [];
+            let html = '';
+            for (let i = 1; i <= wrongCount; i++) {
+                html += `<div style="margin-bottom:8px;">
+                    <label>Yanlış ${i}. Soru Konusu:</label>
+                    <select name="wrong_topics[]" class="wrong-topic-select" required>
+                        <option value="">Konu Seç</option>
+                        ${topicsArr.map(t => `<option value="${t}">${t}</option>`).join('')}
+                    </select>
+                </div>`;
             }
-            if (currentExamSubjects.find(s => s.name === subjectName)) {
-                alert("Bu ders zaten listeye eklendi. Düzenlemek için önce listeden kaldırın.");
-                return;
-            }
-            currentExamSubjects.push({ name: subjectName, correct: correct, wrong: wrong, blank: blank });
-            renderSubjectResultList();
-            generateExamNetChart();
-            document.getElementById('subjectName_new').value = '';
-            document.getElementById('correctCount_new').value = '0';
-            document.getElementById('wrongCount_new').value = '0';
-            document.getElementById('blankCount_new').value = '0';
-            document.getElementById('subjectName_new').focus();
+            container.innerHTML = html;
         }
-        function renderSubjectResultList() {
-            const listElement = document.getElementById('subjectResultList');
-            listElement.innerHTML = '';
-            if (currentExamSubjects.length === 0) {
-                listElement.innerHTML = '<li class="no-subjects">Henüz ders eklenmedi.</li>';
-                return;
-            }
-            currentExamSubjects.forEach((subject, index) => {
-                const net = subject.correct - (subject.wrong / 4.0);
-                const li = document.createElement('li');
-                li.style.display = 'flex';
-                li.style.justifyContent = 'space-between';
-                li.style.alignItems = 'center';
-                li.style.padding = '8px 0';
-                li.style.borderBottom = '1px solid #f0f0f0';
-                li.innerHTML = `
-                    <span><strong>${subject.name}:</strong> D:${subject.correct}, Y:${subject.wrong}, B:${subject.blank} (Net: ${net.toFixed(2)})</span>
-                    <button onclick="removeSubjectResult(${index})" style="background: #ff4d4d; color: white; border: none; padding: 3px 7px; border-radius: 3px; cursor: pointer;">Kaldır</button>
-                `;
-                listElement.appendChild(li);
-            });
-        }
-        function removeSubjectResult(indexToRemove) {
-            currentExamSubjects.splice(indexToRemove, 1);
-            renderSubjectResultList();
-            generateExamNetChart();
-        }
-        function generateExamNetChart() {
-            const canvas = document.getElementById('examNetChart');
-            if(!canvas) { console.error("Canvas elemanı bulunamadı!"); return; }
 
-            if (currentExamSubjects.length === 0) {
-                canvas.style.display = 'none';
-                if (examNetChartInstance) {
-                    examNetChartInstance.destroy();
-                    examNetChartInstance = null;
-                }
+        function saveExamResults() {
+            const taskId = document.getElementById('examEntryTaskId').value;
+            const correctCount = document.getElementById('correctCount').value;
+            const wrongCount = document.getElementById('wrongCount').value;
+            const blankCount = document.getElementById('blankCount').value;
+            const wrongTopicSelects = document.querySelectorAll('.wrong-topic-select');
+            const wrongTopics = Array.from(wrongTopicSelects).map(sel => sel.value).filter(Boolean);
+            if (wrongTopics.length !== parseInt(wrongCount)) {
+                alert('Lütfen her yanlış için bir konu seçin!');
                 return;
             }
-            canvas.style.display = 'block';
-            const ctx = canvas.getContext('2d');
-            if (examNetChartInstance) {
-                examNetChartInstance.destroy();
-            }
-            const labels = currentExamSubjects.map(s => s.name);
-            const netScores = currentExamSubjects.map(s => s.correct - (s.wrong / 4.0));
-            const backgroundColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF'];
-            examNetChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Ders Bazlı Netler',
-                        data: netScores,
-                        backgroundColor: labels.map((_, i) => backgroundColors[i % backgroundColors.length]),
-                        borderColor: labels.map((_, i) => backgroundColors[i % backgroundColors.length]),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } },
-                    plugins: {
-                        legend: { display: true, position: 'top' },
-                        title: { display: true, text: 'Ders Bazlı Net Dağılımı' }
-                    }
-                }
-            });
-        }
-        function saveAllSubjectResults() {
-            const taskId = document.getElementById('examEntryTaskId_new').value;
-            const examNameInput = document.getElementById('examName_new');
-            const examName = examNameInput ? examNameInput.value.trim() : null; // examName_new input'u olmayabilir, kontrol et
-            const messageDiv = document.getElementById('examEntryMessage_new');
-
-            if (currentExamSubjects.length === 0) {
-                alert("Kaydedilecek ders sonucu bulunmamaktadır.");
-                return;
-            }
-            messageDiv.textContent = 'Kaydediliyor...';
-            messageDiv.style.color = 'orange';
-            const dataToSend = {
-                task_id: taskId,
-                exam_name: examName, // Bu değer null olabilir
-                subjects: currentExamSubjects
-            };
-            fetch('save_student_exam_subjects.php', {
+            fetch('save_exam_results.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dataToSend)
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    task_id: taskId,
+                    correct_count: correctCount,
+                    wrong_count: wrongCount,
+                    blank_count: blankCount,
+                    wrong_topics: wrongTopics
+                })
             })
-            .then(res => {
-                if (!res.ok) { throw new Error('Sunucu hatası: ' + res.status); }
-                return res.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    messageDiv.textContent = data.message || 'Tüm sınav sonuçları başarıyla kaydedildi!';
-                    messageDiv.style.color = 'green';
+                    alert('Sonuçlar başarıyla kaydedildi!');
+                    closeExamEntryPopup();
+                    loadStudentTasks(); // Görev listesini yenile
                 } else {
-                    messageDiv.textContent = 'Hata: ' + (data.message || 'Bilinmeyen bir hata oluştu.');
-                    messageDiv.style.color = 'red';
+                    alert('Hata: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Tüm sınav sonuçlarını kaydetme hatası:', error);
-                messageDiv.textContent = 'Bir ağ hatası oluştu: ' + error.message;
-                messageDiv.style.color = 'red';
+                console.error('Error:', error);
+                alert('Bir hata oluştu. Lütfen tekrar deneyin.');
             });
+        }
+
+        function closeExamEntryPopup() {
+            document.getElementById('examEntryPopup').style.display = 'none';
         }
     </script>
 
