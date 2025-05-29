@@ -369,6 +369,49 @@ footer p {
 #examNetChart { /* Grafik canvası */
     margin-top: 20px;
 }
+
+#studentExamResultsPopup .popup-content {
+    max-width: 1100px; /* Popup genişliğini ayarla */
+    width: 98%;
+    max-height: 95vh;
+    padding: 25px;
+    font-size: 1em;
+}
+
+#studentExamResultsTableWrapper {
+    margin-top: 20px;
+    overflow-x: auto; /* Gerekirse yatay kaydırmaya izin ver */
+}
+
+#studentExamResultsTableWrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto; /* Sütunların içeriğe göre genişlemesine izin ver */
+}
+
+#studentExamResultsTableWrapper th,
+#studentExamResultsTableWrapper td {
+    padding: 8px 6px; /* Padding'i ayarla */
+    border: 1px solid #dee2e6;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 0.9em;
+    vertical-align: middle;
+}
+
+#studentExamResultsTableWrapper th {
+    background-color: #f8f9fa;
+    white-space: normal; /* Başlıkta satır atlamaya izin ver */
+    line-height: 1.3; /* Satır yüksekliğini ayarla */
+    font-weight: bold;
+}
+
+/* İhtiyaç olursa belirli sütunlara min-width verilebilir, şimdilik auto */
+/*
+#studentExamResultsTableWrapper th:nth-child(1), #studentExamResultsTableWrapper td:nth-child(1) { min-width: 120px; }
+#studentExamResultsTableWrapper th:nth-child(3), #studentExamResultsTableWrapper td:nth-child(3) { min-width: 150px; }
+*/
     </style>
 </head>
 <body>
@@ -388,7 +431,7 @@ footer p {
                     <h3>📅 Görevlerim</h3>
                     <p>Sana atanan hedefleri ve günlük görevlerini görüntüle.</p>
                 </div>
-                <div class="card" onclick="alert('Bu özellik yakında eklenecek!');">
+                <div class="card" onclick="openStudentExamResultsPopup()">
                     <h3>📊 İstatistiklerim</h3>
                     <p>Görev tamamlama ve performans analizlerini incele.</p>
                 </div>
@@ -396,9 +439,9 @@ footer p {
                     <h3>📚 Derslerim</h3>
                     <p>Seçtiğin veya kayıtlı olduğun dersleri yönet.</p>
                  </div>
-                 <div class="card" onclick="alert('Bu özellik yakında eklenecek!');">
-                    <h3>📢 Duyurular</h3>
-                    <p>Öğretmenlerinden ve yöneticilerden gelen duyurular.</p>
+                 <div class="card" onclick="openStudyTopicsPopup()">
+                    <h3>📚 Çalışmam Gereken Konular</h3>
+                    <p>Deneme sınavlarında yanlış yaptığın konuları gör ve tekrar çalış.</p>
                  </div>
             </div>
         </div>
@@ -426,6 +469,56 @@ footer p {
                     <!-- Ders sonuçları buraya dinamik olarak eklenecek -->
                 </div>
                 <button onclick="saveExamResults()" style="margin-top: 20px; width: 100%;">Sonuçları Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" id="studentExamResultsPopup" style="display:none;">
+        <div class="popup-content">
+            <button class="close-btn" onclick="closeStudentExamResultsPopup()">X</button>
+            <h3>Deneme Sınavı Sonuçlarım</h3>
+            <div id="studentExamResultsLoading">Yükleniyor...</div>
+            <div id="studentExamResultsTableWrapper" style="display:none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Deneme Sınavı</th>
+                            <th colspan="2">Türkçe</th>
+                            <th colspan="2">Matematik</th>
+                            <th colspan="2">Fen</th>
+                            <th colspan="2">İnkılap</th>
+                            <th colspan="2">İngilizce</th>
+                            <th colspan="2">Din</th>
+                        </tr>
+                        <tr>
+                            <th>(D/Y/B)</th>
+                            <th>Yanlış Konular</th>
+                            <th>(D/Y/B)</th>
+                            <th>Yanlış Konular</th>
+                            <th>(D/Y/B)</th>
+                            <th>Yanlış Konular</th>
+                            <th>(D/Y/B)</th>
+                            <th>Yanlış Konular</th>
+                            <th>(D/Y/B)</th>
+                            <th>Yanlış Konular</th>
+                            <th>(D/Y/B)</th>
+                            <th>Yanlış Konular</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentExamResultsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Çalışmam Gereken Konular Popup -->
+    <div class="popup" id="studyTopicsPopup" style="display:none;">
+        <div class="popup-content">
+            <button class="close-btn" onclick="closeStudyTopicsPopup()">X</button>
+            <h3>📝 Çalışmam Gereken Konular</h3>
+            <div id="studyTopicsLoading">Yükleniyor...</div>
+            <div id="studyTopicsContent" style="display:none;">
+                <!-- Konular buraya yüklenecek -->
             </div>
         </div>
     </div>
@@ -708,6 +801,123 @@ footer p {
 
         function closeExamEntryPopup() {
             document.getElementById('examEntryPopup').style.display = 'none';
+        }
+
+        function openStudentExamResultsPopup() {
+            document.getElementById('studentExamResultsPopup').style.display = 'flex';
+            document.getElementById('studentExamResultsLoading').style.display = 'block';
+            document.getElementById('studentExamResultsTableWrapper').style.display = 'none';
+            
+            fetch('get_student_exam_results.php')
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    const tbody = document.getElementById('studentExamResultsTable');
+                    tbody.innerHTML = '';
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 20px;">Henüz deneme sınavı sonucu girmemişsiniz.</td></tr>';
+                    } else {
+                        data.forEach(row => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${row.exam_title}</td>
+                                <td>${row['Türkçe']}</td>
+                                <td>${row['Türkçe_wrong_topics']}</td>
+                                <td>${row['Matematik']}</td>
+                                <td>${row['Matematik_wrong_topics']}</td>
+                                <td>${row['Fen']}</td>
+                                <td>${row['Fen_wrong_topics']}</td>
+                                <td>${row['İnkılap']}</td>
+                                <td>${row['İnkılap_wrong_topics']}</td>
+                                <td>${row['İngilizce']}</td>
+                                <td>${row['İngilizce_wrong_topics']}</td>
+                                <td>${row['Din']}</td>
+                                <td>${row['Din_wrong_topics']}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                    document.getElementById('studentExamResultsLoading').style.display = 'none';
+                    document.getElementById('studentExamResultsTableWrapper').style.display = 'block';
+                })
+                .catch(err => {
+                    console.error('Hata detayı:', err);
+                    document.getElementById('studentExamResultsLoading').innerText = 'Hata oluştu: ' + err.message;
+                    document.getElementById('studentExamResultsTableWrapper').style.display = 'none';
+                });
+        }
+
+        function closeStudentExamResultsPopup() {
+            document.getElementById('studentExamResultsPopup').style.display = 'none';
+        }
+
+        // --- Çalışmam Gereken Konular Popup Fonksiyonları ---
+        function openStudyTopicsPopup() {
+            document.getElementById('studyTopicsPopup').style.display = 'flex';
+            loadStudyTopics(); // Konuları yükle
+        }
+
+        function closeStudyTopicsPopup() {
+            document.getElementById('studyTopicsPopup').style.display = 'none';
+        }
+
+        function loadStudyTopics() {
+            const loadingDiv = document.getElementById('studyTopicsLoading');
+            const contentDiv = document.getElementById('studyTopicsContent');
+            loadingDiv.style.display = 'block';
+            contentDiv.style.display = 'none';
+            contentDiv.innerHTML = ''; // Önceki içeriği temizle
+
+            fetch('get_student_study_topics.php')
+                .then(res => {
+                    if (!res.ok) { throw new Error(`HTTP error! status: ${res.status}`); }
+                    return res.json();
+                })
+                .then(data => {
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+
+                    if (data.error) {
+                        contentDiv.innerHTML = `<p style="color: red;">Hata: ${data.error}</p>`;
+                        console.error('Çalışılacak konular yüklenirken hata:', data.error);
+                        return;
+                    }
+
+                    if (Object.keys(data).length === 0) {
+                        contentDiv.innerHTML = '<p>Henüz deneme sınavı sonucu girmemişsiniz veya yanlış konunuz bulunmamaktadır.</p>';
+                        return;
+                    }
+
+                    let html = '';
+                    for (const subject in data) {
+                        html += `<h4>${subject}</h4><ul>`;
+                        if (data[subject].length === 0) {
+                            html += '<li>Yanlış konu bulunamadı.</li>';
+                        } else {
+                             // Konuları alfabetik sırala
+                            data[subject].sort();
+                            data[subject].forEach(topic => {
+                                html += `<li>${topic}</li>`;
+                            });
+                        }
+                        html += '</ul>';
+                    }
+                    contentDiv.innerHTML = html;
+
+                })
+                .catch(err => {
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+                    contentDiv.innerHTML = `<p style="color: red;">Konular yüklenirken bir hata oluştu: ${err.message}</p>`;
+                    console.error('Konuları fetch ederken hata:', err);
+                });
         }
     </script>
 
