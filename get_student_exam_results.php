@@ -2,7 +2,7 @@
 session_start();
 require_once 'db_connection.php';
 
-// Oturum ve rol kontrolü
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] != 'student') {
     error_log("Oturum hatası: user_id veya role bulunamadı");
     http_response_code(403);
@@ -10,12 +10,12 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit();
 }
 
-// Öğrenci ID'sini al
+
 $student_id = $_SESSION['user_id'];
 error_log("Öğrenci ID: " . $student_id);
 
 try {
-    // Öğrencinin deneme sonuçlarını getir
+    
     $query = "SELECT 
                 g.title as exam_title,
                 s.subject_name,
@@ -50,7 +50,7 @@ try {
         throw new Exception("Sonuç alınamadı: " . $stmt->error);
     }
 
-    // Sonuçları grupla
+    
     $grouped = [];
     while ($row = $result->fetch_assoc()) {
         $exam = $row['exam_title'];
@@ -73,7 +73,7 @@ try {
 
     error_log("Gruplanmış sonuçlar: " . print_r($grouped, true));
 
-    // Sonuçları tek satırda döndür
+    
     $rows = [];
     $fixed_subjects = ['Türkçe', 'Matematik', 'Fen', 'İnkılap', 'İngilizce', 'Din'];
     
@@ -89,7 +89,7 @@ try {
 
     error_log("Final sonuçlar: " . print_r($rows, true));
 
-    // JSON formatında sonuçları döndür
+    
     header('Content-Type: application/json');
     echo json_encode($rows);
 

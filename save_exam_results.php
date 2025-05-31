@@ -1,21 +1,21 @@
 <?php
 header('Content-Type: application/json');
 
-// Veritabanı bağlantısı
+
 $conn = new mysqli("localhost", "root", "", "student_db");
 if ($conn->connect_error) {
     die(json_encode(['success' => false, 'message' => 'Veritabanı bağlantısında bir sorun oluştu.']));
 }
 $conn->set_charset("utf8mb4");
 
-// JSON verisini al
+
 $data = json_decode(file_get_contents('php://input'), true);
 
 if (!$data) {
     die(json_encode(['success' => false, 'message' => 'Geçersiz veri formatı.']));
 }
 
-// Gerekli alanları kontrol et
+
 $required_fields = ['task_id', 'correct_count', 'wrong_count', 'blank_count'];
 foreach ($required_fields as $field) {
     if (!isset($data[$field])) {
@@ -23,7 +23,7 @@ foreach ($required_fields as $field) {
     }
 }
 
-// Değerleri al ve temizle
+
 $task_id = intval($data['task_id']);
 $correct_count = intval($data['correct_count']);
 $wrong_count = intval($data['wrong_count']);
@@ -31,7 +31,7 @@ $blank_count = intval($data['blank_count']);
 $wrong_topics = isset($data['wrong_topics']) ? $data['wrong_topics'] : [];
 $wrong_topics_json = json_encode($wrong_topics, JSON_UNESCAPED_UNICODE);
 
-// Öğrenci ID'sini oturumdan al (şimdilik sabit bir değer kullanıyoruz)
+
 session_start();
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Oturum bulunamadı. Lütfen tekrar giriş yapın.']);
@@ -39,11 +39,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 $student_id = intval($_SESSION['user_id']);
 
-// Transaction başlat
+
 $conn->begin_transaction();
 
 try {
-    // Önce görev detaylarını al
+    
     $stmt_task = $conn->prepare("SELECT subject, question_count FROM tasks WHERE id = ? AND task_type = 'exam_entry'");
     $stmt_task->bind_param("i", $task_id);
     $stmt_task->execute();
@@ -56,13 +56,13 @@ try {
     $task = $result_task->fetch_assoc();
     $stmt_task->close();
     
-    // Toplam soru sayısını kontrol et
+    
     $total_questions = $correct_count + $wrong_count + $blank_count;
     if ($total_questions > $task['question_count']) {
         throw new Exception('Girilen toplam soru sayısı, görevde belirtilen soru sayısından fazla olamaz.');
     }
     
-    // Sınav sonucunu kaydet
+    
     $stmt = $conn->prepare("INSERT INTO student_exam_subject_results (student_id, task_id, subject_name, correct_count, wrong_count, blank_count, wrong_topics) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("iisiiis", $student_id, $task_id, $task['subject'], $correct_count, $wrong_count, $blank_count, $wrong_topics_json);
     
@@ -72,7 +72,7 @@ try {
     
     $stmt->close();
     
-    // Görevi tamamlandı olarak işaretle
+    
     $stmt_status = $conn->prepare("INSERT INTO student_task_status (student_id, task_id, is_completed, completion_date) VALUES (?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE is_completed = 1, completion_date = NOW()");
     $stmt_status->bind_param("ii", $student_id, $task_id);
     
@@ -82,13 +82,13 @@ try {
     
     $stmt_status->close();
     
-    // Transaction'ı onayla
+    
     $conn->commit();
     
     echo json_encode(['success' => true, 'message' => 'Sınav sonuçları başarıyla kaydedildi.']);
     
 } catch (Exception $e) {
-    // Hata durumunda transaction'ı geri al
+    
     $conn->rollback();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

@@ -6,7 +6,7 @@ if ($conn->connect_error) {
 }
 $conn->set_charset("utf8mb4");
 
-// Hedefleri en yeniden eskiye doğru çek, tarihleri de al
+
 $result = $conn->query("SELECT id, title, description, start_date, end_date, created_at FROM goals ORDER BY created_at DESC");
 
 ?>
@@ -58,7 +58,7 @@ $result = $conn->query("SELECT id, title, description, start_date, end_date, cre
                 </div>
                 <small>Oluşturulma: <?php echo date("d.m.Y H:i", strtotime($row['created_at'])); ?></small>
                 <a class="view-tasks" href="add-task.php?goal_id=<?php echo $row['id']; ?>">+ Bu Hedefe Görev Ekle</a>
-                 <!-- Şimdilik görevleri listeleme linki yerine ekleme linki koydum, listelemeyi sonra yaparız -->
+                
                  <!-- <a class="view-tasks" href="list-tasks.php?goal_id=<?php echo $row['id']; ?>">→ Görevleri Gör</a> -->
             </div>
         <?php endwhile; ?>

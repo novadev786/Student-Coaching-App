@@ -4,13 +4,13 @@ $username = "root";
 $password = "";
 $dbname = "student_db";
 
-// Connect
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Bağlantı hatası: " . $conn->connect_error);
 }
 
-// Fetch courses
+
 $sql = "SELECT course_code, course_name, course_teacher, course_department FROM courses";
 $result = $conn->query($sql);
 

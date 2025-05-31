@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 
 $response = ['success' => false, 'message' => ''];
 
-// 1. Oturum ve Rol Kontrolü
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] != 'student') {
     $response['message'] = "Yetkisiz erişim.";
     http_response_code(401);
@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
 }
 $student_id = intval($_SESSION['user_id']);
 
-// 2. Gelen JSON Verisini Al ve Doğrula
+
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!$data || !isset($data['task_id']) || !isset($data['is_completed'])) {
@@ -24,7 +24,7 @@ if (!$data || !isset($data['task_id']) || !isset($data['is_completed'])) {
 }
 
 $task_id = intval($data['task_id']);
-$is_completed = intval($data['is_completed']) === 1 ? 1 : 0; // Değeri 0 veya 1 yap
+$is_completed = intval($data['is_completed']) === 1 ? 1 : 0;
 
 if ($task_id <= 0) {
     $response['message'] = "Geçersiz görev IDsi.";
@@ -33,7 +33,7 @@ if ($task_id <= 0) {
     exit();
 }
 
-// 3. Veritabanı Bağlantısı
+
 $conn = new mysqli("localhost", "root", "", "student_db");
 if ($conn->connect_error) {
     $response['message'] = "Veritabanı hatası.";
@@ -44,8 +44,6 @@ if ($conn->connect_error) {
 }
 $conn->set_charset("utf8mb4");
 
-// 4. Öğrencinin bu göreve erişimi var mı? (Güvenlik Kontrolü - Önemli!)
-// Öğrencinin bu task_id'ye sahip bir hedefe atanıp atanmadığını kontrol etmeliyiz.
 $sql_check_access = "SELECT COUNT(*) as count
                      FROM tasks t
                      JOIN student_goal_assignments sga ON t.goal_id = sga.goal_id
@@ -59,14 +57,13 @@ $stmt_check->close();
 
 if ($row_check['count'] == 0) {
     $response['message'] = "Bu göreve erişim yetkiniz yok.";
-    http_response_code(403); // Forbidden
+    http_response_code(403); 
     $conn->close();
     echo json_encode($response);
     exit();
 }
 
-// 5. INSERT veya UPDATE İşlemi (UPSERT Mantığı)
-// student_task_status tablosuna kayıt ekle, eğer zaten varsa güncelle.
+
 $sql_upsert = "INSERT INTO student_task_status (student_id, task_id, is_completed, completion_date)
                VALUES (?, ?, ?, ?)
                ON DUPLICATE KEY UPDATE
@@ -75,10 +72,10 @@ $sql_upsert = "INSERT INTO student_task_status (student_id, task_id, is_complete
 
 $stmt_upsert = $conn->prepare($sql_upsert);
 
-// Tamamlanma tarihini ayarla: Eğer tamamlandıysa şimdiki zaman, değilse NULL
+
 $completion_date = ($is_completed === 1) ? date("Y-m-d H:i:s") : null;
 
-// Türler: iiis (integer, integer, integer, string)
+
 $stmt_upsert->bind_param("iiis", $student_id, $task_id, $is_completed, $completion_date);
 
 if ($stmt_upsert->execute()) {

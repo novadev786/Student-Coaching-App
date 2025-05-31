@@ -4,15 +4,15 @@ $username = "root";
 $password = "";
 $dbname = "student_db";
 
-// Create connection
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle delete request
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_code'])) {
     $codeToDelete = $conn->real_escape_string($_POST['delete_code']);
     if ($conn->query("DELETE FROM courses WHERE course_code = '$codeToDelete'") === TRUE) {

@@ -1,7 +1,7 @@
 <?php
-session_start(); // Oturumu başlat
+session_start(); 
 
-// Oturum ve rol kontrolü
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] != 'student') {
     header("Location: login.php");
     exit();
@@ -18,15 +18,14 @@ $student_name = isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user
     <link rel="icon" type="image/x-icon" href="./images/study.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* student-home.php <style> bloğunun İÇERİĞİ olarak bunu kullanın veya uyarlayın */
+        
 
-/* --- TEMEL SAYFA VE ARKA PLAN (user-homepage.html'den) --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f2f2f2; /* Varsayılan arka plan rengi */
-    background-image: url('./images/homepage-bg.jpg'); /* ARKA PLAN RESMİ */
+    background-color: #f2f2f2; 
+    background-image: url('./images/homepage-bg.jpg'); 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -37,98 +36,96 @@ body {
 }
 .page-wrapper {
     flex: 1 0 auto;
-    /* Arka plan resminin içeriğin arkasında kalması için,
-       content-wrapper'a opak bir arka plan verilebilir. */
+
 }
 
-/* --- HEADER (Mevcut student-home.php stilini koruyabiliriz veya user-homepage'e benzetebiliriz) --- */
 header {
-    background-color: #007acc; /* user-homepage.html'deki gibi */
-    /* background: linear-gradient(to right, #007bff, #0056b3); Mevcut gradient */
+    background-color: #007acc; 
+    
     color: white;
-    padding: 25px 40px; /* Biraz daha fazla padding */
+    padding: 25px 40px; 
     text-align: center;
-    box-shadow: 0 3px 7px rgba(0,0,0,0.15); /* Biraz daha belirgin gölge */
+    box-shadow: 0 3px 7px rgba(0,0,0,0.15); 
 }
 header h1 {
      margin: 0;
-     font-size: 2em; /* Daha büyük başlık */
+     font-size: 2em; 
      font-weight: 600;
 }
 
-/* --- İÇERİK ALANI (user-homepage.html'deki .content gibi) --- */
+
 .content-wrapper {
-    max-width: 1000px; /* user-homepage.html ile aynı */
-    margin: 60px auto; /* Üst boşluğu artır */
-    padding: 40px;     /* İç boşluğu artır */
-    background-color: rgba(255, 255, 255, 0.95); /* Hafif şeffaf beyaz, arka plan resmi görünsün diye */
+    max-width: 1000px; 
+    margin: 60px auto; 
+    padding: 40px;     
+    background-color: rgba(255, 255, 255, 0.95); 
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
-.content-wrapper h2 { /* content içindeki ana başlıklar */
-    color: #0056b3; /* Koyu mavi */
+.content-wrapper h2 { 
+    color: #0056b3; 
     text-align: center;
-    margin-top: 0; /* İlk başlığın üst boşluğunu kaldır */
+    margin-top: 0; 
     margin-bottom: 30px;
     font-size: 1.8em;
     font-weight: 600;
 }
- .content-wrapper p.welcome-text { /* user-homepage.html'deki .content p gibi */
+ .content-wrapper p.welcome-text { 
      text-align: center;
-     margin-bottom: 40px; /* Boşluğu artır */
-     color: #444; /* Biraz daha koyu */
+     margin-bottom: 40px; 
+     color: #444; 
      font-size: 1.15em;
      line-height: 1.6;
  }
 
-/* --- KARTLAR (user-homepage.html'deki .cards ve .card gibi) --- */
+
 .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Kart genişliği ayarlandı */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
     gap: 30px;
-    margin-top: 20px; /* .content-wrapper h2 ve p'den sonraki boşluk */
+    margin-top: 20px; 
 }
 .card {
-    background-color: #f8f9fa; /* user-homepage.html'deki gibi açık gri */
-    border-radius: 12px; /* Daha yuvarlak */
+    background-color: #f8f9fa; 
+    border-radius: 12px; 
     padding: 25px;
     box-shadow: 0 6px 12px rgba(0,0,0,0.08);
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     text-align: center;
-    border: none; /* Kenarlığı kaldır */
+    border: none; 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 160px; /* Biraz daha yüksek */
+    min-height: 160px; 
 }
 .card:hover {
-    transform: translateY(-8px) scale(1.02); /* Daha belirgin hover efekti */
+    transform: translateY(-8px) scale(1.02); 
     box-shadow: 0 12px 24px rgba(0,0,0,0.12);
 }
 .card h3 {
     margin-top: 10px;
     margin-bottom: 10px;
-    color: #007acc; /* Ana mavi */
+    color: #007acc; 
     font-size: 1.25em;
     font-weight: 600;
 }
 .card p {
-    color: #555; /* Biraz daha koyu açıklama */
+    color: #555; 
     font-size: 0.9em;
     line-height: 1.6;
     margin-bottom: 0;
 }
 
-/* --- POPUP STİLLERİ (Mevcut student-home.php stilleri iyi, sadece arka planı güncelleyebiliriz) --- */
+
 .popup {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* user-homepage.html'deki gibi biraz daha koyu */
+    background-color: rgba(0, 0, 0, 0.7); 
     display: none;
     justify-content: center;
     align-items: center;
@@ -136,22 +133,22 @@ header h1 {
     padding: 20px;
     box-sizing: border-box;
 }
-.popup-content { /* student-home.php'deki mevcut stil iyi, küçük ayarlar */
+.popup-content { 
     background-color: white;
-    padding: 35px; /* İç boşluk artırıldı */
-    border-radius: 15px; /* Daha yuvarlak */
-    max-width: 800px; /* Görev listesi için geniş olabilir */
+    padding: 35px; 
+    border-radius: 15px; 
+    max-width: 800px; 
     width: 90%;
     max-height: 85vh;
     overflow-y: auto;
     position: relative;
     color: #333;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25); /* Daha belirgin gölge */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25); 
     display: flex;
     flex-direction: column;
 }
-#examEntryPopup .popup-content { /* Sınav sonucu popup'ı için özel, daha geniş olabilir */
-    max-width: 750px; /* Bu zaten ayarlıydı */
+#examEntryPopup .popup-content { 
+    max-width: 750px; 
 }
 #examEntryPopup {
      align-items: flex-start;
@@ -160,10 +157,10 @@ header h1 {
 }
 .popup-content h3 {
      margin-top: 0;
-     margin-bottom: 30px; /* Boşluk artırıldı */
+     margin-bottom: 30px; 
      color: #0056b3;
      text-align: center;
-     border-bottom: 1px solid #dee2e6; /* Daha soluk çizgi */
+     border-bottom: 1px solid #dee2e6; 
      padding-bottom: 20px;
      font-size: 1.6em;
  }
@@ -171,7 +168,7 @@ header h1 {
     position: absolute;
     top: 15px;
     right: 15px;
-    background-color: #e74c3c; /* user-homepage.html'deki gibi */
+    background-color: #e74c3c; 
     color: white;
     border: none;
     width: 32px;
@@ -185,34 +182,34 @@ header h1 {
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 .popup .close-btn:hover {
-    background-color: #c0392b; /* Koyu kırmızı */
+    background-color: #c0392b; 
     transform: rotate(90deg);
 }
 
-/* --- GÖREV LİSTESİ STİLLERİ (Mevcut student-home.php stilleri iyi, küçük ayarlar) --- */
+
 #studentTaskList {
     padding: 0;
     margin: 0;
 }
 #studentTaskList li {
     list-style-type: none;
-    margin-bottom: 18px; /* Boşluk artırıldı */
+    margin-bottom: 18px; 
 }
-#studentTaskList h4 { /* Hedef başlıkları */
-     margin-top: 25px; /* Üst boşluk artırıldı */
+#studentTaskList h4 { 
+     margin-top: 25px; 
      margin-bottom: 15px;
      padding-bottom: 10px;
-     border-bottom: 2px solid #007acc; /* Ana mavi */
+     border-bottom: 2px solid #007acc; 
      color: #0056b3;
-     font-size: 1.3em; /* Biraz daha büyük */
+     font-size: 1.3em; 
  }
  #studentTaskList li:first-child h4 {
      margin-top: 0;
  }
 .task-box {
-    border: 1px solid #e0e0e0; /* Daha soluk border */
-    padding: 18px 22px; /* Padding ayarlandı */
-    border-radius: 10px; /* Daha yuvarlak */
+    border: 1px solid #e0e0e0; 
+    padding: 18px 22px;
+    border-radius: 10px; 
     background-color: #fff;
     transition: background-color 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
     position: relative;
@@ -222,14 +219,14 @@ header h1 {
     box-shadow: 0 5px 10px rgba(0,0,0,0.08);
 }
  .task-box strong.task-title {
-     font-size: 1.15em; /* Biraz daha büyük */
-     color: #2c3e50; /* Koyu gri-mavi */
+     font-size: 1.15em; 
+     color: #2c3e50; 
      display: block;
      margin-bottom: 7px;
  }
  .task-box small.task-desc {
      display: block;
-     margin: 8px 0 12px 0; /* Boşluklar ayarlandı */
+     margin: 8px 0 12px 0; 
      color: #555;
      font-size: 0.9em;
      line-height: 1.5;
@@ -242,39 +239,38 @@ header h1 {
      border-top: 1px dashed #e0e0e0;
      display: flex;
      flex-wrap: wrap;
-     gap: 12px 18px; /* Dikey ve yatay boşluk */
+     gap: 12px 18px; 
  }
   .task-box .task-details span {
      white-space: nowrap;
  }
   .task-box .task-details strong {
-     color: #34495e; /* Koyu gri */
+     color: #34495e; 
  }
- button.toggle-done-btn, button.exam-entry-btn { /* İki butona da ortak stil */
+ button.toggle-done-btn, button.exam-entry-btn { 
     margin-top: 15px;
-    padding: 7px 14px; /* Buton boyutu */
+    padding: 7px 14px; 
     cursor: pointer;
-    border-radius: 6px; /* Daha yuvarlak */
+    border-radius: 6px;
     font-size: 0.9em;
     font-weight: bold;
     transition: all 0.2s ease;
-    margin-right: 8px; /* Butonlar arası boşluk */
+    margin-right: 8px; 
  }
  button.toggle-done-btn:last-child, button.exam-entry-btn:last-child {
-     margin-right: 0; /* Son butonun sağ boşluğunu kaldır */
+     margin-right: 0; 
  }
 
-/* --- FOOTER STİLLERİ (Mevcut student-home.php'deki gibi) --- */
 footer {
-    background-color: #2c3e50; /* Koyu tema footer */
-    color: #ecf0f1; /* Açık renk yazı */
+    background-color: #2c3e50; 
+    color: #ecf0f1; 
     text-align: center;
     padding: 25px 0;
     flex-shrink: 0;
-    border-top: 4px solid #3498db; /* Mavi üst çizgi */
+    border-top: 4px solid #3498db; 
 }
-.logout-btn-footer { /* Stil student-home.php'deki ile aynı kalabilir veya güncellenebilir */
-    background-color: #e74c3c; /* Kırmızı */
+.logout-btn-footer { 
+    background-color: #e74c3c; 
     color: white;
     border: none;
     padding: 10px 28px;
@@ -286,15 +282,15 @@ footer {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 .logout-btn-footer:hover {
-    background-color: #c0392b; /* Koyu kırmızı */
+    background-color: #c0392b; 
     transform: translateY(-2px);
 }
 footer p {
-    margin-top: 15px; /* Boşluk artırıldı */
+    margin-top: 15px;
     font-size: 0.9em;
-    color: #bdc3c7; /* Soluk gri */
+    color: #bdc3c7; 
 }
-/* --- Sınav Giriş Popup Form Stilleri (user-homepage.html'den uyarlanmış) --- */
+
 #examEntryForm_new label {
     display: block;
     margin-bottom: 5px;
@@ -303,7 +299,7 @@ footer p {
 }
 #examEntryForm_new input[type="text"],
 #examEntryForm_new input[type="number"] {
-    width: calc(100% - 18px); /* Padding'i hesaba kat */
+    width: calc(100% - 18px); 
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;
@@ -315,7 +311,7 @@ footer p {
     margin-bottom: 10px;
     color: #0056b3;
 }
-#examEntryForm_new button[type="button"] { /* "Bu Dersi Listeye Ekle" butonu */
+#examEntryForm_new button[type="button"] { 
     padding: 10px 18px;
     background-color: #007bff;
     color: white;
@@ -327,7 +323,7 @@ footer p {
 #examEntryForm_new button[type="button"]:hover {
     background-color: #0056b3;
 }
-#subjectResultList { /* Ders listesi için daha iyi görünüm */
+#subjectResultList { 
     border: 1px solid #e0e0e0;
     padding: 15px;
     border-radius: 8px;
@@ -344,7 +340,7 @@ footer p {
 #subjectResultList li:last-child {
     border-bottom: none;
 }
-#subjectResultList li button { /* Kaldır butonu */
+#subjectResultList li button { 
     background: #e74c3c;
     color: white;
     border: none;
@@ -353,7 +349,7 @@ footer p {
     cursor: pointer;
     font-size: 0.8em;
 }
-#examEntryPopup button[onclick="saveAllSubjectResults()"] { /* Tüm Sonuçları Kaydet butonu */
+#examEntryPopup button[onclick="saveAllSubjectResults()"] { 
     padding: 12px 30px;
     background-color: #28a745;
     color: white;
@@ -366,12 +362,12 @@ footer p {
 #examEntryPopup button[onclick="saveAllSubjectResults()"]:hover {
     background-color: #218838;
 }
-#examNetChart { /* Grafik canvası */
+#examNetChart {
     margin-top: 20px;
 }
 
 #studentExamResultsPopup .popup-content {
-    max-width: 1100px; /* Popup genişliğini ayarla */
+    max-width: 1100px;
     width: 98%;
     max-height: 95vh;
     padding: 25px;
@@ -380,18 +376,18 @@ footer p {
 
 #studentExamResultsTableWrapper {
     margin-top: 20px;
-    overflow-x: auto; /* Gerekirse yatay kaydırmaya izin ver */
+    overflow-x: auto; 
 }
 
 #studentExamResultsTableWrapper table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: auto; /* Sütunların içeriğe göre genişlemesine izin ver */
+    table-layout: auto; 
 }
 
 #studentExamResultsTableWrapper th,
 #studentExamResultsTableWrapper td {
-    padding: 8px 6px; /* Padding'i ayarla */
+    padding: 8px 6px; 
     border: 1px solid #dee2e6;
     text-align: center;
     word-wrap: break-word;
@@ -402,16 +398,12 @@ footer p {
 
 #studentExamResultsTableWrapper th {
     background-color: #f8f9fa;
-    white-space: normal; /* Başlıkta satır atlamaya izin ver */
-    line-height: 1.3; /* Satır yüksekliğini ayarla */
+    white-space: normal; 
+    line-height: 1.3; 
     font-weight: bold;
 }
 
-/* İhtiyaç olursa belirli sütunlara min-width verilebilir, şimdilik auto */
-/*
-#studentExamResultsTableWrapper th:nth-child(1), #studentExamResultsTableWrapper td:nth-child(1) { min-width: 120px; }
-#studentExamResultsTableWrapper th:nth-child(3), #studentExamResultsTableWrapper td:nth-child(3) { min-width: 150px; }
-*/
+
     </style>
 </head>
 <body>
@@ -466,7 +458,7 @@ footer p {
             <div id="examEntryForm">
                 <input type="hidden" id="examEntryTaskId" name="task_id">
                 <div id="subjectResults">
-                    <!-- Ders sonuçları buraya dinamik olarak eklenecek -->
+                    
                 </div>
                 <button onclick="saveExamResults()" style="margin-top: 20px; width: 100%;">Sonuçları Kaydet</button>
             </div>
@@ -511,14 +503,14 @@ footer p {
         </div>
     </div>
 
-    <!-- Çalışmam Gereken Konular Popup -->
+   
     <div class="popup" id="studyTopicsPopup" style="display:none;">
         <div class="popup-content">
             <button class="close-btn" onclick="closeStudyTopicsPopup()">X</button>
             <h3>📝 Çalışmam Gereken Konular</h3>
             <div id="studyTopicsLoading">Yükleniyor...</div>
             <div id="studyTopicsContent" style="display:none;">
-                <!-- Konular buraya yüklenecek -->
+               
             </div>
         </div>
     </div>
@@ -530,7 +522,7 @@ footer p {
     </footer>
 
     <script>
-        // --- Popup Açma/Kapama Fonksiyonları ---
+       
         function openTaskPopup() {
             loadStudentTasks();
             document.getElementById("studentTaskPopup").style.display = "flex";
@@ -538,7 +530,7 @@ footer p {
         function closeTaskPopup() {
             document.getElementById("studentTaskPopup").style.display = "none";
         }
-        // --- Görevleri Yükleme Fonksiyonu ---
+        
         function loadStudentTasks() {
             const listContainer = document.getElementById("studentTaskList");
             listContainer.innerHTML = "<li>Görevler yükleniyor...</li>";
@@ -626,7 +618,7 @@ footer p {
                     console.error("Görevleri fetch ederken hata:", err);
                 });
         }
-        // --- Görev Durumunu Güncelleme Fonksiyonu ---
+      
          function toggleDone(taskId, btn) {
             const taskBox = btn.closest(".task-box");
             const isCurrentlyDone = btn.textContent.includes('Geri Al');
@@ -668,50 +660,48 @@ footer p {
                 btn.disabled = false;
             });
         }
-        // --- Çıkış Yapma Fonksiyonu ---
-          // --- student-home.php <script> bloğu içinde ---
+     
     function logoutUser() {
         if (confirm("Çıkış yapmak istediğinize emin misiniz?")) {
-            fetch('logout.php', { // 'ajax_logout.php' yerine 'logout.php' olarak değiştirildi
-                method: 'POST' // POST metodu kullanılabilir, veri göndermese de olur.
-                               // VEYA GET de olabilir: method: 'GET'
+            fetch('logout.php', { 
+                method: 'POST' 
+                              
             })
             .then(res => {
-                // HTTP yanıtının başarılı olup olmadığını kontrol et (örn: 404, 500 gibi hatalar)
+                
                 if (!res.ok) {
-                    // Başarısızsa, bir hata fırlat ki .catch() bloğu yakalasın
-                    // Sunucudan gelen hata mesajını da ekleyebiliriz (eğer varsa)
-                    return res.text().then(text => { // Hata mesajını text olarak almayı dene
+                   
+                    return res.text().then(text => { 
                         throw new Error(`Sunucu hatası: ${res.status} - ${res.statusText}. Yanıt: ${text}`);
                     });
                 }
-                // Yanıt başarılıysa (2xx durum kodu), JSON olarak ayrıştırmayı dene
+                
                 return res.json();
             })
             .then(data => {
-                // JSON verisini işle
+               
                 if (data.success) {
-                    // Çıkış başarılı mesajı (PHP'den gelen veya varsayılan)
+                    
                     alert(data.message || "Başarıyla çıkış yapıldı. Giriş sayfasına yönlendiriliyorsunuz.");
-                    // Başarılı çıkış sonrası kullanıcıyı giriş sayfasına yönlendir
-                    window.location.href = "index.html"; // Giriş sayfanızın adı
+                    
+                    window.location.href = "index.html"; 
                 } else {
-                    // Çıkış başarısız mesajı (PHP'den gelen veya varsayılan)
+                    
                     alert("Çıkış işlemi başarısız: " + (data.message || "Bilinmeyen bir hata oluştu."));
                 }
             })
             .catch(error => {
-                // Fetch hatası (ağ sorunu) veya yukarıda fırlatılan HTTP hatası
+               
                 console.error("Çıkış Hatası Detayları:", error);
                 alert("Çıkış işlemi sırasında bir sorun oluştu. Lütfen konsolu kontrol edin.\nHata: " + error.message);
             });
         }
     }
-        // --- Sınav Sonuç Girişi Fonksiyonları ---
+        
         function openExamEntryPopup(taskId, taskTitle) {
             document.getElementById('examEntryTaskId').value = taskId;
             document.getElementById('examEntryPopupTitle').textContent = taskTitle;
-            // Ders bilgilerini getir
+            
             fetch(`get_task_details.php?task_id=${taskId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -737,7 +727,7 @@ footer p {
                             <div id="topicSelectContainer"></div>
                         </div>
                     `;
-                    window.examTopicsArr = topicsArr; // globalde tut
+                    window.examTopicsArr = topicsArr; 
                 });
             document.getElementById('examEntryPopup').style.display = 'flex';
         }
@@ -788,7 +778,7 @@ footer p {
                 if (data.success) {
                     alert('Sonuçlar başarıyla kaydedildi!');
                     closeExamEntryPopup();
-                    loadStudentTasks(); // Görev listesini yenile
+                    loadStudentTasks(); 
                 } else {
                     alert('Hata: ' + data.message);
                 }
@@ -858,10 +848,10 @@ footer p {
             document.getElementById('studentExamResultsPopup').style.display = 'none';
         }
 
-        // --- Çalışmam Gereken Konular Popup Fonksiyonları ---
+        
         function openStudyTopicsPopup() {
             document.getElementById('studyTopicsPopup').style.display = 'flex';
-            loadStudyTopics(); // Konuları yükle
+            loadStudyTopics(); 
         }
 
         function closeStudyTopicsPopup() {
@@ -873,7 +863,7 @@ footer p {
             const contentDiv = document.getElementById('studyTopicsContent');
             loadingDiv.style.display = 'block';
             contentDiv.style.display = 'none';
-            contentDiv.innerHTML = ''; // Önceki içeriği temizle
+            contentDiv.innerHTML = ''; 
 
             fetch('get_student_study_topics.php')
                 .then(res => {
@@ -901,7 +891,7 @@ footer p {
                         if (data[subject].length === 0) {
                             html += '<li>Yanlış konu bulunamadı.</li>';
                         } else {
-                             // Konuları alfabetik sırala
+                            
                             data[subject].sort();
                             data[subject].forEach(topic => {
                                 html += `<li>${topic}</li>`;

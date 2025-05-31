@@ -100,16 +100,16 @@
     display: flex;
     justify-content: center;
     gap: 30px;
-    max-width: 1100px;  /* Increased from 1000px */
+    max-width: 1100px; 
     margin: 130px auto 30px auto;
     padding: 0 20px;
     flex-wrap: wrap;
 }
 
 .panel {
-    flex: 0 1 48%;        /* Increased from 45% */
-    min-width: 320px;     /* Slightly wider */
-    max-width: 500px;     /* Increased from 400px */
+    flex: 0 1 48%;       
+    min-width: 320px;     
+    max-width: 500px;     
     background-color: white;
     padding: 20px;
     border-radius: 12px;
@@ -350,13 +350,13 @@
             <label for="assign_goal_id">Hedef Seç:</label>
             <select id="assign_goal_id" name="goal_id" required>
                 <option value="">-- Hedef Yükleniyor... --</option>
-                <!-- Hedefler buraya JS ile yüklenecek -->
+               
             </select>
 
             <label for="assign_student_id">Öğrenci Seç:</label>
             <select id="assign_student_id" name="student_id" required>
                 <option value="">-- Öğrenci Yükleniyor... --</option>
-                <!-- Öğrenciler buraya JS ile yüklenecek -->
+               
             </select>
 
             <div class="form-actions">
@@ -524,9 +524,9 @@ function closeAllTasksPopup() {
     document.getElementById("teacherTaskPopup").style.display = "none";
 }
 function openAssignGoalPopup() {
-        loadGoalsForDropdown(); // Hedefleri yükle
-        loadStudentsForDropdown(); // Öğrencileri yükle
-        document.getElementById('assignGoalMessage').textContent = ''; // Mesajı temizle
+        loadGoalsForDropdown(); 
+        loadStudentsForDropdown(); 
+        document.getElementById('assignGoalMessage').textContent = ''; 
         document.getElementById('assignGoalPopup').style.display = 'flex';
     }
 
@@ -534,15 +534,15 @@ function openAssignGoalPopup() {
         document.getElementById('assignGoalPopup').style.display = 'none';
     }
 
-    // Hedefleri dropdown'a yüklemek için fonksiyon
+  
     function loadGoalsForDropdown() {
         const goalSelect = document.getElementById('assign_goal_id');
-        goalSelect.innerHTML = '<option value="">-- Hedef Yükleniyor... --</option>'; // Yükleniyor mesajı
+        goalSelect.innerHTML = '<option value="">-- Hedef Yükleniyor... --</option>'; 
 
-        fetch('get_goals_for_dropdown.php') // Bu PHP dosyasını oluşturacağız
+        fetch('get_goals_for_dropdown.php') 
             .then(response => response.json())
             .then(data => {
-                goalSelect.innerHTML = '<option value="">-- Hedef Seçin --</option>'; // Varsayılan seçenek
+                goalSelect.innerHTML = '<option value="">-- Hedef Seçin --</option>'; 
                 if (data.error) {
                     console.error('Hedefler yüklenemedi:', data.error);
                      goalSelect.innerHTML = '<option value="">Hedefler yüklenemedi!</option>';
@@ -561,15 +561,15 @@ function openAssignGoalPopup() {
             });
     }
 
-    // Öğrencileri dropdown'a yüklemek için fonksiyon
+   
     function loadStudentsForDropdown() {
         const studentSelect = document.getElementById('assign_student_id');
-        studentSelect.innerHTML = '<option value="">-- Öğrenci Yükleniyor... --</option>'; // Yükleniyor mesajı
+        studentSelect.innerHTML = '<option value="">-- Öğrenci Yükleniyor... --</option>'; 
 
-        fetch('get_students_for_dropdown.php') // Bu PHP dosyasını oluşturacağız
+        fetch('get_students_for_dropdown.php') 
             .then(response => response.json())
             .then(data => {
-                studentSelect.innerHTML = '<option value="">-- Öğrenci Seçin --</option>'; // Varsayılan seçenek
+                studentSelect.innerHTML = '<option value="">-- Öğrenci Seçin --</option>'; 
                 if (data.error) {
                     console.error('Öğrenciler yüklenemedi:', data.error);
                      studentSelect.innerHTML = '<option value="">Öğrenciler yüklenemedi!</option>';
@@ -577,7 +577,7 @@ function openAssignGoalPopup() {
                     data.forEach(student => {
                         const option = document.createElement('option');
                         option.value = student.id;
-                        // Öğrenci adını ve belki ID'sini gösterelim
+                        
                         option.textContent = `${student.name} (ID: ${student.id})`;
                         studentSelect.appendChild(option);
                     });
@@ -589,9 +589,9 @@ function openAssignGoalPopup() {
             });
     }
 
-    // Formu AJAX ile gönderme (sayfa yenilenmeden)
+    
     document.getElementById('assignGoalForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Formun normal gönderimini engelle
+        event.preventDefault(); 
         const form = event.target;
         const formData = new FormData(form);
         const messageDiv = document.getElementById('assignGoalMessage');
@@ -602,14 +602,12 @@ function openAssignGoalPopup() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json()) // Yanıtı JSON olarak işle
+        .then(response => response.json()) 
         .then(data => {
             if (data.success) {
                 messageDiv.textContent = data.message || 'Atama başarıyla kaydedildi!';
                 messageDiv.style.color = 'green';
-                // Formu sıfırla veya popup'ı kapat
-                // form.reset();
-                // setTimeout(closeAssignGoalPopup, 1500); // 1.5 saniye sonra kapat
+             
             } else {
                 messageDiv.textContent = 'Hata: ' + (data.message || data.error || 'Bilinmeyen bir hata oluştu.');
                 messageDiv.style.color = 'red';

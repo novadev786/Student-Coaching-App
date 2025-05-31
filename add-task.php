@@ -1,5 +1,5 @@
 <?php
-// Veritabanı bağlantısı
+
 $conn = new mysqli("localhost", "root", "", "student_db");
 if ($conn->connect_error) {
     error_log("Database Connection Error: " . $conn->connect_error);
@@ -7,12 +7,12 @@ if ($conn->connect_error) {
 }
 $conn->set_charset("utf8mb4");
 
-$goal_id_from_url = isset($_GET['goal_id']) ? intval($_GET['goal_id']) : 0; // URL'den gelen hedef ID'si
-$goal_title = ''; // Hedef başlığını göstermek için
+$goal_id_from_url = isset($_GET['goal_id']) ? intval($_GET['goal_id']) : 0; 
+$goal_title = ''; 
 $success_message = '';
 $error_message = '';
 
-// Eğer URL'den geçerli bir goal_id geldiyse, hedef başlığını çekelim
+
 if ($goal_id_from_url > 0) {
     $stmt_goal = $conn->prepare("SELECT title FROM goals WHERE id = ?");
     $stmt_goal->bind_param("i", $goal_id_from_url);
@@ -22,18 +22,18 @@ if ($goal_id_from_url > 0) {
         $goal_row = $result_goal->fetch_assoc();
         $goal_title = $goal_row['title'];
     } else {
-        // Geçersiz hedef ID'si geldiyse hata ver
+        
         $error_message = "Geçersiz hedef ID'si.";
-        $goal_id_from_url = 0; // ID'yi sıfırla ki form düzgün çalışmasın
+        $goal_id_from_url = 0; 
     }
     $stmt_goal->close();
 }
 
-// Form gönderildiyse
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Formdan gelen verileri al
+    
     $goal_id = isset($_POST['goal_id']) ? intval($_POST['goal_id']) : 0;
-    $task_order = isset($_POST['task_order']) ? intval($_POST['task_order']) : 1; // Varsayılan 1
+    $task_order = isset($_POST['task_order']) ? intval($_POST['task_order']) : 1; 
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
     $subject = trim($_POST['subject']);
@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $task_date = !empty($_POST['task_date']) ? $_POST['task_date'] : null;
     $task_type = trim($_POST['task_type']);
 
-    // Doğrulamalar
+ 
     if (empty($title)) {
         $error_message = "Görev başlığı boş bırakılamaz.";
     } elseif ($goal_id <= 0) {
@@ -50,19 +50,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (empty($task_type)) {
         $error_message = "Görev türü seçilmelidir.";
     } else {
-        // Prepared Statement ile görev ekleme
+        
         $stmt = $conn->prepare("INSERT INTO tasks (goal_id, task_order, title, description, subject, topic, question_count, task_date, task_type, is_completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)");
-        // Tür belirteçleri: iissssis (integer, integer, string, string, string, string, integer, string)
+        
         $stmt->bind_param("iissssiss", $goal_id, $task_order, $title, $description, $subject, $topic, $question_count, $task_date, $task_type);
 
         if ($stmt->execute()) {
             $success_message = "Görev başarıyla eklendi! 🎉";
-             // Başarıdan sonra formu temizlemek için POST verilerini sıfırla (isteğe bağlı)
+            
              $_POST = array();
-             // Aynı hedefe yeni görev eklemek için goal_id'yi koru
+             
              $goal_id_from_url = $goal_id;
-             // Sayfayı yeniden yüklerken hedef başlığını tekrar çekmek gerekebilir veya değişkende tutulabilir
-             // Basitlik için şimdilik bu kadar yeterli.
+            
         } else {
             $error_message = "Görev eklenirken bir hata oluştu: " . $stmt->error;
             error_log("Task Insert Error: " . $stmt->error);
@@ -71,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Eğer form gönderilmediyse ve URL'den ID gelmediyse, hedef seçimi için tüm hedefleri çek
+
 $all_goals = [];
 if ($goal_id_from_url <= 0 && $_SERVER["REQUEST_METHOD"] != "POST") {
      $result_all_goals = $conn->query("SELECT id, title FROM goals ORDER BY title ASC");
@@ -92,7 +91,7 @@ $conn->close();
     <title>Görev Ekle</title>
     <link rel="icon" href="./images/study.png">
     <style>
-        /* Stiller add-goal.php'dekine benzer olabilir, isterseniz oradan kopyalayabilirsiniz */
+      
         body { background: linear-gradient(to right, #f0f2f5, #cce1f0); font-family: 'Segoe UI', sans-serif; padding: 40px; }
         .container { max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 10px; }
@@ -124,11 +123,11 @@ $conn->close();
             <div class="message error"><?php echo $error_message; ?></div>
         <?php endif; ?>
 
-        <?php // Eğer geçerli bir hedef ID'si yoksa veya hedef seçimi gerekiyorsa formu gösterme veya farklı bir mesaj göster ?>
+        <?php?>
         <?php if ($goal_id_from_url > 0 || count($all_goals) > 0 || $_SERVER["REQUEST_METHOD"] == "POST"): ?>
             <form method="POST" action="add-task.php<?php echo $goal_id_from_url > 0 ? '?goal_id='.$goal_id_from_url : ''; ?>">
 
-                <?php // Eğer URL'den goal_id gelmediyse, dropdown ile seçtir ?>
+                <?php  ?>
                 <?php if ($goal_id_from_url <= 0): ?>
                     <label for="goal_id">Hedef Seç:</label>
                     <select id="goal_id" name="goal_id" required>
@@ -140,7 +139,7 @@ $conn->close();
                         <?php endforeach; ?>
                     </select>
                 <?php else: ?>
-                    <?php // Eğer URL'den geldiyse, gizli alan olarak ekle ve gösterim amaçlı readonly dropdown ?>
+                    <?php  ?>
                      <label for="goal_id_display">Hedef:</label>
                      <select id="goal_id_display" readonly disabled>
                          <option><?php echo htmlspecialchars($goal_title); ?></option>

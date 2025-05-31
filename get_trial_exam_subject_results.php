@@ -18,8 +18,7 @@ if ($student_task_id <= 0) {
     exit();
 }
 
-// Optional: Check if this task belongs to the logged-in student for security
-// For now, assuming student_id check is handled elsewhere or studentId is passed with task_id
+
 
 $stmt = $conn->prepare("SELECT subject_name, correct_count, incorrect_count, blank_count, net_score FROM trial_exam_subject_results WHERE student_task_id = ? ORDER BY subject_name");
 if (!$stmt) {

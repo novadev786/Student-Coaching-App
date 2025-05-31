@@ -8,7 +8,7 @@ $conn->set_charset("utf8mb4");
 
 $fixed_subjects = ['Türkçe', 'Matematik', 'Fen', 'İnkılap', 'İngilizce', 'Din'];
 
-// Her öğrenci ve deneme için tek satırda tüm dersler
+
 $sql = "SELECT u.name AS student_name, g.title AS exam_title, s.subject_name, s.correct_count, s.wrong_count, s.blank_count, s.wrong_topics
         FROM student_exam_subject_results s
         JOIN users u ON s.student_id = u.id
@@ -18,7 +18,7 @@ $sql = "SELECT u.name AS student_name, g.title AS exam_title, s.subject_name, s.
         ORDER BY u.name, g.title, FIELD(s.subject_name, 'Türkçe','Matematik','Fen','İnkılap','İngilizce','Din')";
 $res = $conn->query($sql);
 
-// Grupla: [student_name][exam_title][subject_name] = ...
+
 $grouped = [];
 while ($row = $res->fetch_assoc()) {
     $stu = $row['student_name'];
@@ -39,7 +39,7 @@ while ($row = $res->fetch_assoc()) {
     ];
 }
 
-// Sonuçları tek satırda döndür
+
 $rows = [];
 foreach ($grouped as $stu => $exams) {
     foreach ($exams as $exam => $subjects) {

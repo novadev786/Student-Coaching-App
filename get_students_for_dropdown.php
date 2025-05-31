@@ -9,13 +9,12 @@ if ($conn->connect_error) {
 $conn->set_charset("utf8mb4");
 
 $goals = [];
-// Sadece ID ve başlığı çekiyoruz, aktif/pasif durumu varsa eklenebilir
-// get_students_for_dropdown.php içinden
+
 $result = $conn->query("SELECT id, name FROM users WHERE role = 'student' ORDER BY name ASC");
 
 if ($result) {
     while ($row = $result->fetch_assoc()) {
-        // Başlığı güvenli hale getir (gerçi veritabanına eklerken yapılmış olmalı)
+        
         $row['title'] = htmlspecialchars($row['title']);
         $goals[] = $row;
     }

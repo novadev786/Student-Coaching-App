@@ -37,8 +37,8 @@ if ($result->num_rows > 0) {
     $response['success'] = true;
     $response['entry'] = $result->fetch_assoc();
 } else {
-    // Kayıt yoksa hata değil, sadece boş entry dönsün
-    $response['success'] = true; // İşlem başarılı ama data yok
+    
+    $response['success'] = true;
     $response['message'] = "Daha önce girilmiş sonuç bulunamadı.";
 }
 

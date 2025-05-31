@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Kullanıcı oturumda değilse veya rolü 'admin' değilse, giriş sayfasına yönlendir
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'admin') {
     header("Location: login.php");
     exit();

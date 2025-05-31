@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'student') {
 }
 $student_id = intval($_SESSION['user_id']);
 
-// POST verilerini al
+
 $task_id = isset($_POST['task_id']) ? intval($_POST['task_id']) : 0;
 $exam_name = isset($_POST['exam_name']) ? trim($_POST['exam_name']) : null;
 $correct_count = isset($_POST['correct_count']) ? intval($_POST['correct_count']) : null;
@@ -34,7 +34,7 @@ if ($conn->connect_error) {
 }
 $conn->set_charset("utf8mb4");
 
-// Güvenlik: Öğrencinin bu task'a erişimi var mı ve task_type 'exam_entry' mi?
+
 $stmt_check = $conn->prepare("SELECT t.task_type FROM tasks t JOIN student_goal_assignments sga ON t.goal_id = sga.goal_id WHERE t.id = ? AND sga.student_id = ?");
 $stmt_check->bind_param("ii", $task_id, $student_id);
 $stmt_check->execute();
@@ -56,10 +56,9 @@ if ($result_check->num_rows > 0) {
 $stmt_check->close();
 
 
-// Net skoru hesapla (4 yanlış 1 doğruyu götürür mantığıyla)
 $net_score = $correct_count - ($wrong_count / 4.0);
 
-// INSERT veya UPDATE (UPSERT)
+
 $sql_upsert = "INSERT INTO student_exam_entries (student_id, task_id, exam_name, correct_count, wrong_count, blank_count, net_score, entry_date)
                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
                ON DUPLICATE KEY UPDATE
@@ -71,18 +70,13 @@ $sql_upsert = "INSERT INTO student_exam_entries (student_id, task_id, exam_name,
                entry_date = NOW()";
 
 $stmt_upsert = $conn->prepare($sql_upsert);
-// Türler: iisiiids (int, int, string, int, int, int, decimal, string_date)
-// exam_name NULL olabileceği için s, NOW() string olarak gider.
+
 $stmt_upsert->bind_param("iisiidd", $student_id, $task_id, $exam_name, $correct_count, $wrong_count, $blank_count, $net_score);
 
 if ($stmt_upsert->execute()) {
     $response['success'] = true;
     $response['message'] = 'Sınav sonucu başarıyla kaydedildi/güncellendi.';
-    // İsteğe bağlı: Bu görevi tamamlandı olarak işaretle
-    // $stmt_mark_done = $conn->prepare("INSERT INTO student_task_status (student_id, task_id, is_completed, completion_date) VALUES (?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE is_completed = 1, completion_date = NOW()");
-    // $stmt_mark_done->bind_param("ii", $student_id, $task_id);
-    // $stmt_mark_done->execute();
-    // $stmt_mark_done->close();
+
 } else {
     $response['message'] = 'Veritabanı hatası: Sonuç kaydedilemedi. ' . $stmt_upsert->error;
     error_log("Save Exam Entry Error: " . $stmt_upsert->error);

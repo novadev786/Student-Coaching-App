@@ -1,35 +1,35 @@
 <?php
-// Veritabanı bağlantısı (güvenli bağlantı bilgilerini kullanın)
+
 $conn = new mysqli("localhost", "root", "", "student_db");
 if ($conn->connect_error) {
-    // Kullanıcıya genel bir hata mesajı göster, detayı logla
+   
     error_log("Database Connection Error: " . $conn->connect_error);
     die("Veritabanı bağlantısında bir sorun oluştu. Lütfen daha sonra tekrar deneyin.");
 }
-$conn->set_charset("utf8mb4"); // Türkçe karakterler için
+$conn->set_charset("utf8mb4"); 
 
 $success_message = '';
 $error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Formdan gelen verileri al
+   
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
     $start_date = !empty($_POST['start_date']) ? $_POST['start_date'] : null;
     $subjects = isset($_POST['subjects']) ? $_POST['subjects'] : [];
-    $teacher_id = 1; // Admin ekliyor gibi sabitliyoruz
+    $teacher_id = 1; 
 
-    // Doğrulamalar
+  
     if (empty($title)) {
         $error_message = "Deneme sınavı adı boş bırakılamaz.";
     } elseif (empty($subjects)) {
         $error_message = "En az bir ders eklenmelidir.";
     } else {
-        // Transaction başlat
+       
         $conn->begin_transaction();
 
         try {
-            // Hedefi ekle
+           
             $stmt_goal = $conn->prepare("INSERT INTO goals (teacher_id, title, description, start_date) VALUES (?, ?, ?, ?)");
             $stmt_goal->bind_param("isss", $teacher_id, $title, $description, $start_date);
             
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $goal_id = $conn->insert_id;
             $stmt_goal->close();
 
-            // Her ders için görev oluştur
+          
             $task_order = 1;
             $stmt_task = $conn->prepare("INSERT INTO tasks (goal_id, task_order, title, subject, question_count, topics, task_type, task_date) VALUES (?, ?, ?, ?, ?, ?, 'exam_entry', ?)");
             
@@ -64,12 +64,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             $stmt_task->close();
             
-            // Transaction'ı onayla
+            
             $conn->commit();
             $success_message = "Deneme sınavı başarıyla eklendi! 🎉";
             
         } catch (Exception $e) {
-            // Hata durumunda transaction'ı geri al
+            
             $conn->rollback();
             $error_message = $e->getMessage();
             error_log("Error in add-goal.php: " . $e->getMessage());
@@ -86,7 +86,7 @@ $conn->close();
     <title>Hedef Ekle</title>
     <link rel="icon" href="./images/study.png">
     <style>
-        /* Stil tanımlamaları önceki cevaptaki gibi kalabilir */
+        
         body { background: linear-gradient(to right, #e3f2fd, #ffffff); font-family: 'Segoe UI', sans-serif; padding: 40px; }
         .container { max-width: 600px; margin: auto; background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 25px; }
